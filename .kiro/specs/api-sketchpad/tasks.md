@@ -2,7 +2,7 @@
 
 - [ ] 1. Set up project structure and dependencies
   - Create package structure with `api_sketchpad/` directory
-  - Set up `pyproject.toml` with PyQt6, pytest, and hypothesis dependencies
+  - Update `pyproject.toml` if necessary
   - Create `__init__.py` files for package modules
   - Set up basic application entry point in `main.py`
   - _Requirements: 15.5_

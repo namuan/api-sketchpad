@@ -51,7 +51,7 @@ The application follows a layered architecture:
 ```python
 class Interaction:
     """Represents a single API interaction configuration."""
-    
+
     def __init__(self):
         self.name: str
         self.description: str
@@ -60,7 +60,7 @@ class Interaction:
         self.request_headers: Dict[str, str]
         self.request_body: str
         self.responses: Dict[int, Response]  # status_code -> Response
-    
+
     def to_dict(self) -> dict
     def from_dict(data: dict) -> Interaction
     def validate(self) -> List[str]  # Returns validation errors
@@ -70,12 +70,12 @@ class Interaction:
 ```python
 class Response:
     """Represents an expected response for a specific status code."""
-    
+
     def __init__(self):
         self.status_code: int
         self.headers: Dict[str, str]
         self.body: str
-    
+
     def to_dict(self) -> dict
     def from_dict(data: dict) -> Response
 ```
@@ -84,11 +84,11 @@ class Response:
 ```python
 class InteractionRepository:
     """Manages the collection of interactions."""
-    
+
     def __init__(self):
         self.interactions: List[Interaction]
         self.current_interaction: Optional[Interaction]
-    
+
     def add_interaction(self, interaction: Interaction) -> None
     def remove_interaction(self, interaction: Interaction) -> None
     def get_interaction(self, index: int) -> Interaction
@@ -103,13 +103,13 @@ class InteractionRepository:
 ```python
 class MainWindow(QMainWindow):
     """Main application window with three-panel layout."""
-    
+
     def __init__(self):
         self.navigation_panel: NavigationPanel
         self.request_panel: RequestPanel
         self.response_panel: ResponsePanel
         self.repository: InteractionRepository
-    
+
     def setup_ui(self) -> None
     def setup_splitters(self) -> None
     def setup_menu_bar(self) -> None
@@ -120,14 +120,14 @@ class MainWindow(QMainWindow):
 ```python
 class NavigationPanel(QWidget):
     """Left panel displaying list of interactions."""
-    
+
     interaction_selected = pyqtSignal(Interaction)
-    
+
     def __init__(self, repository: InteractionRepository):
         self.interaction_list: QListWidget
         self.add_button: QPushButton
         self.repository: InteractionRepository
-    
+
     def refresh_list(self) -> None
     def on_add_interaction(self) -> None
     def on_interaction_selected(self, item: QListWidgetItem) -> None
@@ -137,9 +137,9 @@ class NavigationPanel(QWidget):
 ```python
 class RequestPanel(QWidget):
     """Middle panel for configuring HTTP requests."""
-    
+
     interaction_updated = pyqtSignal(Interaction)
-    
+
     def __init__(self):
         self.name_field: QLineEdit
         self.description_field: QTextEdit
@@ -148,7 +148,7 @@ class RequestPanel(QWidget):
         self.headers_table: HeadersTableWidget
         self.body_editor: SyntaxHighlightEditor
         self.current_interaction: Optional[Interaction]
-    
+
     def load_interaction(self, interaction: Interaction) -> None
     def save_to_interaction(self) -> None
     def on_name_changed(self, text: str) -> None
@@ -159,13 +159,13 @@ class RequestPanel(QWidget):
 ```python
 class ResponsePanel(QWidget):
     """Right panel for defining expected responses and testing."""
-    
+
     def __init__(self):
         self.status_tabs: QTabWidget
         self.response_editors: Dict[int, ResponseEditor]
         self.try_it_section: TryItOutWidget
         self.current_interaction: Optional[Interaction]
-    
+
     def load_interaction(self, interaction: Interaction) -> None
     def add_status_tab(self, status_code: int) -> None
     def remove_status_tab(self, status_code: int) -> None
@@ -176,11 +176,11 @@ class ResponsePanel(QWidget):
 ```python
 class SyntaxHighlightEditor(QTextEdit):
     """Text editor with JSON/XML syntax highlighting."""
-    
+
     def __init__(self):
         self.highlighter: SyntaxHighlighter
         self.format: str  # 'json' or 'xml'
-    
+
     def set_format(self, format: str) -> None
     def get_text(self) -> str
     def set_text(self, text: str) -> None
@@ -190,14 +190,14 @@ class SyntaxHighlightEditor(QTextEdit):
 ```python
 class HeadersTableWidget(QWidget):
     """Table widget for managing HTTP headers."""
-    
+
     headers_changed = pyqtSignal(dict)
-    
+
     def __init__(self):
         self.table: QTableWidget
         self.add_button: QPushButton
         self.remove_button: QPushButton
-    
+
     def set_headers(self, headers: Dict[str, str]) -> None
     def get_headers(self) -> Dict[str, str]
     def on_add_header(self) -> None
@@ -208,7 +208,7 @@ class HeadersTableWidget(QWidget):
 ```python
 class TryItOutWidget(QWidget):
     """Widget for executing live API calls."""
-    
+
     def __init__(self):
         self.endpoint_field: QLineEdit
         self.method_dropdown: QComboBox
@@ -216,7 +216,7 @@ class TryItOutWidget(QWidget):
         self.response_preview: QTextEdit
         self.status_label: QLabel
         self.current_interaction: Optional[Interaction]
-    
+
     def load_interaction(self, interaction: Interaction) -> None
     def on_send_clicked(self) -> None
     def display_response(self, response: SimulatedResponse) -> None
@@ -228,10 +228,10 @@ class TryItOutWidget(QWidget):
 ```python
 class InteractionController:
     """Coordinates interactions between UI and data models."""
-    
+
     def __init__(self, repository: InteractionRepository):
         self.repository: InteractionRepository
-    
+
     def create_interaction(self) -> Interaction
     def update_interaction(self, interaction: Interaction) -> None
     def delete_interaction(self, interaction: Interaction) -> None
@@ -242,7 +242,7 @@ class InteractionController:
 ```python
 class APISimulator:
     """Simulates API calls for testing."""
-    
+
     def execute_request(
         self,
         method: str,
@@ -250,7 +250,7 @@ class APISimulator:
         headers: Dict[str, str],
         body: str
     ) -> SimulatedResponse
-    
+
     def simulate_delay(self) -> None
 ```
 
@@ -258,16 +258,16 @@ class APISimulator:
 ```python
 class ValidationService:
     """Validates user inputs and data."""
-    
+
     @staticmethod
     def validate_json(text: str) -> Tuple[bool, Optional[str]]
-    
+
     @staticmethod
     def validate_xml(text: str) -> Tuple[bool, Optional[str]]
-    
+
     @staticmethod
     def validate_url_path(path: str) -> Tuple[bool, Optional[str]]
-    
+
     @staticmethod
     def validate_header_key(key: str) -> Tuple[bool, Optional[str]]
 ```
@@ -276,16 +276,16 @@ class ValidationService:
 ```python
 class SerializationService:
     """Handles JSON serialization/deserialization."""
-    
+
     @staticmethod
     def serialize_interactions(interactions: List[Interaction]) -> str
-    
+
     @staticmethod
     def deserialize_interactions(json_str: str) -> List[Interaction]
-    
+
     @staticmethod
     def export_to_file(interactions: List[Interaction], filepath: str) -> None
-    
+
     @staticmethod
     def import_from_file(filepath: str) -> List[Interaction]
 ```
@@ -539,7 +539,7 @@ class SerializationService:
 ```python
 class ErrorMessage:
     """Standard error message structure."""
-    
+
     def __init__(self):
         self.title: str  # Short error title
         self.message: str  # User-friendly description
@@ -598,10 +598,10 @@ def test_adding_interaction_increases_size(interactions):
     repository = InteractionRepository()
     for interaction in interactions:
         repository.add_interaction(interaction)
-    
+
     initial_count = len(repository.interactions)
     repository.add_interaction(Interaction())
-    
+
     assert len(repository.interactions) == initial_count + 1
     assert repository.interactions[-1].name == "New Interaction"
 ```

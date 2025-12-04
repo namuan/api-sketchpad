@@ -31,9 +31,9 @@ The application provides a three-panel interface for managing API interactions, 
 ## 3. Functional Requirements
 
 ### 3.1 Navigation Management (FR-001)
-**ID:** FR-001  
-**Title:** Interaction Navigation  
-**Description:** Users must be able to create, select, and manage multiple API interactions  
+**ID:** FR-001
+**Title:** Interaction Navigation
+**Description:** Users must be able to create, select, and manage multiple API interactions
 **Requirements:**
 - Display list of all interactions in left sidebar
 - Support adding new interactions via "+ Add Interaction" button
@@ -47,9 +47,9 @@ The application provides a three-panel interface for managing API interactions, 
 - Renaming interaction in middle panel updates sidebar in real-time
 
 ### 3.2 Interaction Metadata (FR-002)
-**ID:** FR-002  
-**Title:** Interaction Metadata Management  
-**Description:** Each interaction must have configurable metadata  
+**ID:** FR-002
+**Title:** Interaction Metadata Management
+**Description:** Each interaction must have configurable metadata
 **Requirements:**
 - Interaction name (single-line text field)
 - Interaction description (multi-line text area)
@@ -62,9 +62,9 @@ The application provides a three-panel interface for managing API interactions, 
 - All changes persist within session
 
 ### 3.3 HTTP Configuration (FR-003)
-**ID:** FR-003  
-**Title:** HTTP Request Configuration  
-**Description:** Configure HTTP method and endpoint for each interaction  
+**ID:** FR-003
+**Title:** HTTP Request Configuration
+**Description:** Configure HTTP method and endpoint for each interaction
 **Requirements:**
 - HTTP method selection (dropdown): GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS
 - Endpoint path input (text field)
@@ -77,9 +77,9 @@ The application provides a three-panel interface for managing API interactions, 
 - Changes reflect in "Try it out" section
 
 ### 3.4 Request Headers Management (FR-004)
-**ID:** FR-004  
-**Title:** Request Headers Configuration  
-**Description:** Manage custom HTTP headers for API requests  
+**ID:** FR-004
+**Title:** Request Headers Configuration
+**Description:** Manage custom HTTP headers for API requests
 **Requirements:**
 - Editable table for header key-value pairs
 - Add/remove header functionality
@@ -94,9 +94,9 @@ The application provides a three-panel interface for managing API interactions, 
 - Empty values allowed for testing
 
 ### 3.5 Request Body Editor (FR-005)
-**ID:** FR-005  
-**Title:** Request Body Composition  
-**Description:** Free-form request body editing with syntax highlighting  
+**ID:** FR-005
+**Title:** Request Body Composition
+**Description:** Free-form request body editing with syntax highlighting
 **Requirements:**
 - Multi-line text editor with syntax highlighting
 - Support for JSON and XML formats
@@ -110,9 +110,9 @@ The application provides a three-panel interface for managing API interactions, 
 - Copy/paste maintains formatting
 
 ### 3.6 Response Schema Management (FR-006)
-**ID:** FR-006  
-**Title:** Response Schema Definition  
-**Description:** Define expected responses for different HTTP status codes  
+**ID:** FR-006
+**Title:** Response Schema Definition
+**Description:** Define expected responses for different HTTP status codes
 **Requirements:**
 - Tabbed interface for status codes (200 OK, 400 Bad Request, 500 Internal Server Error)
 - Editable response body for each status
@@ -126,9 +126,9 @@ The application provides a three-panel interface for managing API interactions, 
 - Changes persist per interaction
 
 ### 3.7 Response Headers Configuration (FR-007)
-**ID:** FR-007  
-**Title:** Response Headers Management  
-**Description:** Define expected headers for each response status  
+**ID:** FR-007
+**Title:** Response Headers Management
+**Description:** Define expected headers for each response status
 **Requirements:**
 - Separate headers table for each status code
 - Same add/remove functionality as request headers
@@ -141,9 +141,9 @@ The application provides a three-panel interface for managing API interactions, 
 - Headers display in "Try it out" response preview
 
 ### 3.8 API Testing Functionality (FR-008)
-**ID:** FR-008  
-**Title:** Live API Testing  
-**Description:** Execute actual API calls with configured parameters  
+**ID:** FR-008
+**Title:** Live API Testing
+**Description:** Execute actual API calls with configured parameters
 **Requirements:**
 - "Try it out" section with configurable endpoint
 - Method selection independent from interaction method
@@ -159,9 +159,9 @@ The application provides a three-panel interface for managing API interactions, 
 - Status indicator shows success/error
 
 ### 3.9 User Interface Requirements (FR-009)
-**ID:** FR-009  
-**Title:** User Interface Specifications  
-**Description:** Layout and visual requirements  
+**ID:** FR-009
+**Title:** User Interface Specifications
+**Description:** Layout and visual requirements
 **Requirements:**
 - Three-column resizable layout (200px-600px-400px min widths)
 - Consistent font scheme (Consolas for code, Arial for UI)
@@ -175,9 +175,9 @@ The application provides a three-panel interface for managing API interactions, 
 - Text remains readable at minimum sizes
 
 ### 3.10 Data Model Requirements (FR-010)
-**ID:** FR-010  
-**Title:** Interaction Data Structure  
-**Description:** Data persistence and structure  
+**ID:** FR-010
+**Title:** Interaction Data Structure
+**Description:** Data persistence and structure
 **Requirements:**
 - In-memory storage of interactions during session
 - JSON-compatible data structure
@@ -205,9 +205,9 @@ The application provides a three-panel interface for managing API interactions, 
 ## 4. Non-Functional Requirements
 
 ### 4.1 Performance Requirements
-**ID:** NFR-001  
-**Category:** Performance  
-**Description:** Application responsiveness  
+**ID:** NFR-001
+**Category:** Performance
+**Description:** Application responsiveness
 **Requirements:**
 - UI updates within 100ms of user input
 - Load 50+ interactions without performance degradation
@@ -215,9 +215,9 @@ The application provides a three-panel interface for managing API interactions, 
 - Simulated API responses within 2 seconds
 
 ### 4.2 Usability Requirements
-**ID:** NFR-002  
-**Category:** Usability  
-**Description:** User experience standards  
+**ID:** NFR-002
+**Category:** Usability
+**Description:** User experience standards
 **Requirements:**
 - Intuitive three-panel layout
 - Consistent terminology across application
@@ -226,9 +226,9 @@ The application provides a three-panel interface for managing API interactions, 
 - Keyboard navigation support
 
 ### 4.3 Compatibility Requirements
-**ID:** NFR-003  
-**Category:** Compatibility  
-**Description:** Platform and dependency requirements  
+**ID:** NFR-003
+**Category:** Compatibility
+**Description:** Platform and dependency requirements
 **Requirements:**
 - Python 3.8 or higher
 - PyQt6 6.4.0 or higher
@@ -236,9 +236,9 @@ The application provides a three-panel interface for managing API interactions, 
 - Support for high-DPI displays
 
 ### 4.4 Reliability Requirements
-**ID:** NFR-004  
-**Category:** Reliability  
-**Description:** Application stability  
+**ID:** NFR-004
+**Category:** Reliability
+**Description:** Application stability
 **Requirements:**
 - No data loss during normal operation
 - Graceful handling of malformed JSON/XML
