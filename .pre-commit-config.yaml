@@ -6,7 +6,6 @@ repos:
       - id: check-ast
       - id: check-builtin-literals
       - id: check-added-large-files
-        # exclude assets/ directory and the uv.lock file at repo root
         exclude: '(^assets/|^uv\.lock$)'
       - id: check-merge-conflict
       - id: check-case-conflict
