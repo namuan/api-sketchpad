@@ -62,30 +62,44 @@ class Interaction(BaseModel):
     MAX_NAME_LENGTH: ClassVar[int] = 255
 
     def validate(self) -> list[str]:
-        """Validate the interaction and return a list of error messages."""
-        errors = []
+        errors: list[str] = []
+        errors.extend(self._validate_name())
+        errors.extend(self._validate_method())
+        errors.extend(self._validate_path())
+        errors.extend(self._validate_headers())
+        errors.extend(self._validate_responses())
+        return errors
 
-        # Validate name length
+    def _validate_name(self) -> list[str]:
+        errors: list[str] = []
         if len(self.name) > self.MAX_NAME_LENGTH:
             errors.append("Interaction name cannot exceed 255 characters")
+        return errors
 
-        # Validate HTTP method
+    def _validate_method(self) -> list[str]:
+        errors: list[str] = []
         valid_methods = {"GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"}
         if self.method not in valid_methods:
             errors.append(f"Invalid HTTP method: {self.method}")
+        return errors
 
-        # Validate path (basic URL path validation)
+    def _validate_path(self) -> list[str]:
+        errors: list[str] = []
         if not self.path.startswith("/") and self.path:
             errors.append("Path must start with '/'")
+        return errors
 
-        # Validate request headers
+    def _validate_headers(self) -> list[str]:
+        errors: list[str] = []
         for key, value in self.request_headers.items():
             if not isinstance(key, str) or not key.strip():
                 errors.append(f"Request header key '{key}' must be a non-empty string")
             if not isinstance(value, str):
                 errors.append(f"Request header value for '{key}' must be a string")
+        return errors
 
-        # Validate responses
+    def _validate_responses(self) -> list[str]:
+        errors: list[str] = []
         for status_code, response in self.responses.items():
             if not isinstance(response, Response):
                 errors.append(
@@ -96,7 +110,6 @@ class Interaction(BaseModel):
                 errors.extend([
                     f"Response {status_code}: {error}" for error in response_errors
                 ])
-
         return errors
 
     def update_response(self, status_code: int, response: Response) -> None:

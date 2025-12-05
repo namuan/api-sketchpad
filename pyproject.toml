@@ -135,7 +135,7 @@ line-ending = "auto"
 # TypeScript strict mode equivalent
 # ============================================================
 [tool.basedpyright]
-pythonVersion = "3.8"
+pythonVersion = "3.12"
 typeCheckingMode = "basic"
 
 # ============================================================
@@ -253,7 +253,6 @@ exclude = [
     "api_sketchpad/ui",
     "api_sketchpad/services",
     "api_sketchpad/models",
-    "api_sketchpad/controllers",
 ]
 
 venvPath = "."

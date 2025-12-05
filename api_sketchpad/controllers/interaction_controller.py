@@ -1,12 +1,12 @@
 """Interaction controller for coordinating UI and data operations."""
 
-from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtCore import QObject, pyqtSignal
 
 from ..models.interaction import Interaction
 from ..repository import InteractionRepository
 
 
-class InteractionController:
+class InteractionController(QObject):
     """Coordinates interactions between UI components and data models."""
 
     interaction_created = pyqtSignal(Interaction)
@@ -14,6 +14,7 @@ class InteractionController:
     interaction_deleted = pyqtSignal(Interaction)
 
     def __init__(self, repository: InteractionRepository) -> None:
+        super().__init__()
         self.repository = repository
 
     def create_interaction(self) -> Interaction:
@@ -39,7 +40,7 @@ class InteractionController:
         """Set the current active interaction."""
         self.repository.set_current_interaction(interaction)
 
-    def duplicate_interaction(self, interaction: Interaction) -> Interaction:
+    def duplicate_interaction(self, interaction: Interaction) -> Interaction | None:
         """Create a copy of an existing interaction."""
         new_interaction = self.repository.duplicate_interaction(interaction)
         if new_interaction:
