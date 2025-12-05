@@ -1,13 +1,20 @@
 """Request panel for configuring API interactions."""
 
-from PyQt6.QtCore import pyqtSignal
+from typing import override
+
+from PyQt6.QtCore import QModelIndex, Qt, pyqtSignal
+from PyQt6.QtGui import QColor, QPainter, QPen
 from PyQt6.QtWidgets import (
     QComboBox,
     QFrame,
     QHBoxLayout,
     QLabel,
     QLineEdit,
+    QListView,
     QScrollArea,
+    QStyle,
+    QStyledItemDelegate,
+    QStyleOptionViewItem,
     QTextEdit,
     QVBoxLayout,
     QWidget,
@@ -19,6 +26,35 @@ from .syntax_highlighter import SyntaxFormat
 from .widgets.headers_table import HeadersTableWidget
 from .widgets.query_params import QueryParamsWidget
 from .widgets.syntax_editor import SyntaxHighlightEditor
+
+
+class _NoTickDelegate(QStyledItemDelegate):
+    def __init__(self, padding: int = 8) -> None:
+        super().__init__()
+        self._padding = padding
+
+    @override
+    def paint(
+        self, painter: QPainter | None, option: QStyleOptionViewItem, index: QModelIndex
+    ) -> None:
+        if painter is None:
+            return
+        bg = (
+            QColor("#f2f2f2")
+            if option.state & QStyle.StateFlag.State_MouseOver
+            else (
+                QColor("#e6e6e6")
+                if option.state & QStyle.StateFlag.State_Selected
+                else QColor("white")
+            )
+        )
+        painter.fillRect(option.rect, bg)
+        painter.setPen(QPen(QColor("black")))
+        text = index.data()
+        rect = option.rect.adjusted(self._padding, 0, 0, 0)
+        painter.drawText(
+            rect, Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft, text
+        )
 
 
 class RequestPanel(QFrame):
@@ -90,14 +126,7 @@ class RequestPanel(QFrame):
             "HEAD",
             "OPTIONS",
         ])
-        self.method_dropdown.setStyleSheet("""
-            QComboBox {
-                border: 1px solid #333;
-                border-radius: 4px;
-                padding: 5px;
-                background-color: white;
-            }
-        """)
+        self._configure_method_dropdown()
 
         self.path_field = QLineEdit()
         self.path_field.setPlaceholderText("/api/endpoint")
@@ -130,6 +159,38 @@ class RequestPanel(QFrame):
 
         scroll.setWidget(content)
         frame_layout.addWidget(scroll)
+
+    def _configure_method_dropdown(self) -> None:
+        self.method_dropdown.setStyleSheet(
+            """
+            QComboBox {
+                border: 1px solid #333;
+                border-radius: 4px;
+                padding: 5px;
+                background-color: white;
+            }
+            QComboBox QAbstractItemView {
+                background-color: white;
+                color: black;
+                outline: 0;
+                selection-background-color: #e6e6e6;
+                selection-color: black;
+            }
+            QComboBox QAbstractItemView::item:hover {
+                background-color: #f2f2f2;
+                color: black;
+            }
+            QComboBox QAbstractItemView::item:selected {
+                background-color: #e6e6e6;
+                color: black;
+            }
+            """
+        )
+        popup_view = QListView()
+        popup_view.setAlternatingRowColors(False)
+        popup_view.setStyleSheet("QListView { background-color: white; color: black; }")
+        popup_view.setItemDelegate(_NoTickDelegate())
+        self.method_dropdown.setView(popup_view)
 
     def _connect_signals(self) -> None:
         """Connect UI signals to slots."""

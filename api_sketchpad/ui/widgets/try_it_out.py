@@ -1,14 +1,20 @@
 """Try It Out widget for live API testing."""
 
 import json
+from typing import override
 
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import QModelIndex, Qt
+from PyQt6.QtGui import QColor, QPainter, QPen
 from PyQt6.QtWidgets import (
     QComboBox,
     QHBoxLayout,
     QLabel,
     QLineEdit,
+    QListView,
     QPushButton,
+    QStyle,
+    QStyledItemDelegate,
+    QStyleOptionViewItem,
     QTextEdit,
     QVBoxLayout,
     QWidget,
@@ -21,6 +27,35 @@ HTTP_STATUS_SUCCESS_MIN = 200
 HTTP_STATUS_SUCCESS_MAX = 299
 HTTP_STATUS_CLIENT_ERROR_MIN = 400
 HTTP_STATUS_CLIENT_ERROR_MAX = 499
+
+
+class _NoTickDelegate(QStyledItemDelegate):
+    def __init__(self, padding: int = 8) -> None:
+        super().__init__()
+        self._padding = padding
+
+    @override
+    def paint(
+        self, painter: QPainter | None, option: QStyleOptionViewItem, index: QModelIndex
+    ) -> None:
+        if painter is None:
+            return
+        bg = (
+            QColor("#f2f2f2")
+            if option.state & QStyle.StateFlag.State_MouseOver
+            else (
+                QColor("#e6e6e6")
+                if option.state & QStyle.StateFlag.State_Selected
+                else QColor("white")
+            )
+        )
+        painter.fillRect(option.rect, bg)
+        painter.setPen(QPen(QColor("black")))
+        text = index.data()
+        rect = option.rect.adjusted(self._padding, 0, 0, 0)
+        painter.drawText(
+            rect, Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft, text
+        )
 
 
 class TryItOutWidget(QWidget):
@@ -42,6 +77,37 @@ class TryItOutWidget(QWidget):
 
         self.method_dropdown = QComboBox()
         self.method_dropdown.addItems(["GET", "POST", "PUT", "DELETE", "PATCH"])
+        self.method_dropdown.setStyleSheet(
+            """
+            QComboBox {
+                border: 1px solid #333;
+                border-radius: 4px;
+                padding: 5px;
+                background-color: white;
+            }
+            QComboBox QAbstractItemView {
+                background-color: white;
+                color: black;
+                outline: 0;
+                selection-background-color: #e6e6e6;
+                selection-color: black;
+            }
+            QComboBox QAbstractItemView::item:hover {
+                background-color: #f2f2f2;
+                color: black;
+            }
+            QComboBox QAbstractItemView::item:selected {
+                background-color: #e6e6e6;
+                color: black;
+            }
+            """
+        )
+
+        popup_view = QListView()
+        popup_view.setAlternatingRowColors(False)
+        popup_view.setStyleSheet("QListView { background-color: white; color: black; }")
+        popup_view.setItemDelegate(_NoTickDelegate())
+        self.method_dropdown.setView(popup_view)
 
         self.endpoint_field = QLineEdit()
         self.endpoint_field.setPlaceholderText("Enter endpoint URL")
