@@ -4,6 +4,7 @@ from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtWidgets import (
     QAbstractItemView,
     QFrame,
+    QLabel,
     QListWidget,
     QListWidgetItem,
     QPushButton,
@@ -65,6 +66,17 @@ class NavigationPanel(QFrame):
         """)
         layout.addWidget(self.add_button)
 
+        # Empty state hint shown when there are no interactions
+        self.empty_state_label = QLabel(
+            "No interactions yet. Click '+ Add interaction' to create one."
+        )
+        self.empty_state_label.setWordWrap(True)
+        self.empty_state_label.setStyleSheet(
+            "color: #1a73e8; font-size: 12px; padding: 4px 2px;"
+        )
+        self.empty_state_label.hide()
+        layout.addWidget(self.empty_state_label)
+
         # Interactions list (styled like api-window.py)
         self.interaction_list = QListWidget()
         self.interaction_list.setStyleSheet("""
@@ -125,7 +137,42 @@ class NavigationPanel(QFrame):
                 self.interaction_list.setCurrentItem(item)
 
         if not self.repository.interactions:
+            # Show empty indicator and slightly highlight the add button
+            self.empty_state_label.show()
+            self.add_button.setStyleSheet(
+                """
+                QPushButton {
+                    border: 1px solid #1a73e8;
+                    border-radius: 4px;
+                    padding: 6px;
+                    background-color: #e8f0fe;
+                    text-align: left;
+                    font-weight: bold;
+                }
+                QPushButton:hover {
+                    background-color: #d2e3fc;
+                }
+                """
+            )
             self.interactions_empty.emit()
+        else:
+            # Hide empty indicator and restore default button style
+            self.empty_state_label.hide()
+            self.add_button.setStyleSheet(
+                """
+                QPushButton {
+                    border: 1px solid #333;
+                    border-radius: 4px;
+                    padding: 6px;
+                    background-color: white;
+                    text-align: left;
+                    font-weight: bold;
+                }
+                QPushButton:hover {
+                    background-color: #f0f0f0;
+                }
+                """
+            )
 
     def _on_delete_interaction(self, interaction: Interaction) -> None:
         """Handle deleting an interaction."""
