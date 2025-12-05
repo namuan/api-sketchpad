@@ -1,6 +1,5 @@
 """Interaction model for API SketchPad."""
 
-from dataclasses import asdict
 from typing import Any, ClassVar
 
 from pydantic import BaseModel, Field
@@ -42,7 +41,9 @@ class Interaction(BaseModel):
 
     def to_dict(self) -> dict[str, Any]:
         """Convert the interaction to a dictionary for serialization."""
-        return asdict(self)
+        if hasattr(self, "model_dump"):
+            return self.model_dump()
+        return self.dict()
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "Interaction":

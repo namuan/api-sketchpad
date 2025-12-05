@@ -27,6 +27,7 @@ class RequestPanel(QWidget):
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.current_interaction = None
+        self._updating = False
         self._setup_ui()
         self._connect_signals()
 
@@ -115,17 +116,18 @@ class RequestPanel(QWidget):
         """Save current UI state to interaction."""
         if not self.current_interaction:
             return
-
-        self.current_interaction.name = self.name_field.text()
-        self.current_interaction.description = self.description_field.toPlainText()
-        self.current_interaction.method = self.method_dropdown.currentText()
-        self.current_interaction.path = self.path_field.text()
-        self.current_interaction.request_headers = self.headers_table.get_headers()
-        self.current_interaction.request_body = self.body_editor.get_text()
+        ci = self.current_interaction
+        ci.name = self.name_field.text()
+        ci.description = self.description_field.toPlainText()
+        ci.method = self.method_dropdown.currentText()
+        ci.path = self.path_field.text()
+        ci.request_headers = self.headers_table.get_headers()
+        ci.request_body = self.body_editor.get_text()
 
     def _on_field_changed(self) -> None:
         """Handle any field change and update interaction."""
-        if self.current_interaction:
+        if self.current_interaction and not self._updating:
+            self._updating = True
             self.save_to_interaction()
 
             # Validate path
@@ -140,6 +142,7 @@ class RequestPanel(QWidget):
                 self.path_field.setToolTip("")
 
             self.interaction_updated.emit(self.current_interaction)
+            self._updating = False
 
     def _set_block_signals(self, *, block: bool) -> None:
         self.name_field.blockSignals(block)

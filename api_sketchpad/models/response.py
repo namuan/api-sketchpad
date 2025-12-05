@@ -1,6 +1,5 @@
 """Response model for API SketchPad."""
 
-from dataclasses import asdict
 from typing import Any
 
 from pydantic import BaseModel, Field
@@ -17,7 +16,9 @@ class Response(BaseModel):
 
     def to_dict(self) -> dict[str, Any]:
         """Convert the response to a dictionary for serialization."""
-        return asdict(self)
+        if hasattr(self, "model_dump"):
+            return self.model_dump()
+        return self.dict()
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "Response":
