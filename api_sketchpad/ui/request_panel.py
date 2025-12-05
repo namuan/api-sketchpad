@@ -49,8 +49,12 @@ class RequestPanel(QFrame):
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QFrame.Shape.NoFrame)
+        vp = scroll.viewport()
+        if vp is not None:
+            vp.setStyleSheet("background-color: white;")
 
         content = QWidget()
+        content.setStyleSheet("background-color: white;")
         main_layout = QVBoxLayout(content)
         main_layout.setSpacing(15)
         main_layout.setContentsMargins(15, 15, 15, 15)
