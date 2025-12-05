@@ -29,6 +29,7 @@ class ResponsePanel(QFrame):
         self.response_editors: dict[int, ResponseEditor] = {}
         self._setup_ui()
         self._connect_signals()
+        self.setEnabled(False)
 
     def _setup_ui(self) -> None:
         """Initialize UI components."""
@@ -145,6 +146,7 @@ class ResponsePanel(QFrame):
         # Select 200 by default
         self.status_buttons[DEFAULT_STATUS_CODES[0]].setChecked(True)
         self._on_status_selected(DEFAULT_STATUS_CODES[0])
+        self.setEnabled(True)
 
     def _add_response_editor(self, status_code: int, response: Response) -> None:
         """Add a response editor for a status code."""
@@ -171,3 +173,12 @@ class ResponsePanel(QFrame):
                 editor.save_response(response)
 
             self.interaction_updated.emit(self.current_interaction)
+
+    def clear(self) -> None:
+        """Clear the panel when no interaction is selected."""
+        self.current_interaction = None
+        # Keep existing editors but reset their content
+        for status_code, editor in self.response_editors.items():
+            empty = Response(status_code=status_code)
+            editor.load_response(empty)
+        self.setEnabled(False)

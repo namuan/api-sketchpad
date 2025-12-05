@@ -22,6 +22,7 @@ class NavigationPanel(QFrame):
     """Left panel displaying list of interactions with add button."""
 
     interaction_selected = pyqtSignal(Interaction)
+    interactions_empty = pyqtSignal()
 
     def __init__(
         self, repository: InteractionRepository, parent: QWidget | None = None
@@ -123,6 +124,9 @@ class NavigationPanel(QFrame):
             if interaction == self.repository.current_interaction:
                 self.interaction_list.setCurrentItem(item)
 
+        if not self.repository.interactions:
+            self.interactions_empty.emit()
+
     def _on_delete_interaction(self, interaction: Interaction) -> None:
         """Handle deleting an interaction."""
         self.repository.remove_interaction(interaction)
@@ -133,6 +137,8 @@ class NavigationPanel(QFrame):
             first = self.repository.interactions[0]
             self.repository.set_current_interaction(first)
             self.interaction_selected.emit(first)
+        else:
+            self.interactions_empty.emit()
 
     def on_add_interaction(self) -> None:
         """Handle adding new interaction."""

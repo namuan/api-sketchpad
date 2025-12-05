@@ -101,6 +101,7 @@ class MainWindow(QMainWindow):
         self.navigation_panel.interaction_selected.connect(
             self._on_interaction_selected
         )
+        self.navigation_panel.interactions_empty.connect(self._on_no_interactions)
 
         # Panel updates
         self.request_panel.interaction_updated.connect(self._on_interaction_updated)
@@ -121,6 +122,8 @@ class MainWindow(QMainWindow):
     def _on_interaction_updated(self, _interaction: Interaction) -> None:
         """Handle interaction updates from panels."""
         self.navigation_panel.refresh_list()
+        if not self.repository.has_interactions():
+            self._on_no_interactions()
 
     def _on_new(self) -> None:
         """Create new empty collection."""
@@ -137,6 +140,7 @@ class MainWindow(QMainWindow):
         self.repository.clear()
         self.navigation_panel.refresh_list()
         self.status_bar.showMessage("New collection created", 3000)
+        self._on_no_interactions()
 
     def _on_open(self) -> None:
         """Open collection from file."""
@@ -151,6 +155,8 @@ class MainWindow(QMainWindow):
                 self.repository.interactions = interactions
                 self.navigation_panel.refresh_list()
                 self.status_bar.showMessage(f"Opened: {file_path}", 3000)
+                if not self.repository.has_interactions():
+                    self._on_no_interactions()
             else:
                 QMessageBox.critical(self, "Open Error", error)
 
@@ -181,3 +187,8 @@ class MainWindow(QMainWindow):
                 self.status_bar.showMessage(f"Saved: {file_path}", 3000)
             else:
                 QMessageBox.critical(self, "Save Error", error)
+
+    def _on_no_interactions(self) -> None:
+        """Clear middle and right panels when no interactions exist."""
+        self.request_panel.clear()
+        self.response_panel.clear()

@@ -68,6 +68,7 @@ class RequestPanel(QFrame):
         self._updating = False
         self._setup_ui()
         self._connect_signals()
+        self.setEnabled(False)
 
     def _setup_ui(self) -> None:
         """Initialize UI components."""
@@ -226,6 +227,25 @@ class RequestPanel(QFrame):
 
         # Restore signals
         self._set_block_signals(block=False)
+        self.setEnabled(True)
+
+    def clear(self) -> None:
+        """Clear the panel when no interaction is selected."""
+        self.current_interaction = None
+        self._set_block_signals(block=True)
+        self.name_field.clear()
+        self.description_field.clear()
+        self.method_dropdown.setCurrentIndex(0)
+        self.path_field.clear()
+        self.headers_table.set_headers({})
+        self.query_params_widget.set_params({})
+        self.body_editor.set_text("")
+        self.path_field.setStyleSheet(
+            "border: 1px solid #333; border-radius: 4px; padding: 5px;"
+        )
+        self.path_field.setToolTip("")
+        self._set_block_signals(block=False)
+        self.setEnabled(False)
 
     def save_to_interaction(self) -> None:
         """Save current UI state to interaction."""
