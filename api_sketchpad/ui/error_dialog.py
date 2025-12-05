@@ -74,4 +74,5 @@ class ErrorDialog(QDialog):
     def _on_copy_details(self) -> None:
         """Copy error details to clipboard."""
         clipboard = QApplication.clipboard()
-        clipboard.setText(self.details_text.toPlainText())
+        if clipboard is not None:
+            clipboard.setText(self.details_text.toPlainText())

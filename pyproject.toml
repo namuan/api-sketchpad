@@ -112,6 +112,12 @@ max-nested-blocks = 3  # Maximum nested block depth (PLR1702)
     "ANN",     # Don't require annotations in tests
     "FBT",     # Allow boolean args in tests
 ]
+"api_sketchpad/ui/syntax_highlighter.py" = [
+    "N802",    # Allow Qt override method name 'highlightBlock'
+]
+"api_sketchpad/ui/widgets/syntax_editor.py" = [
+    "N802",    # Allow Qt override method name 'insertFromMimeData'
+]
 
 [tool.ruff.lint.isort]
 known-first-party = ["api_sketchpad"]
@@ -250,9 +256,6 @@ exclude = [
     "dist",
     "*.egg-info",
     "tests/**",
-    "api_sketchpad/ui",
-    "api_sketchpad/services",
-    "api_sketchpad/models",
 ]
 
 venvPath = "."

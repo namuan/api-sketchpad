@@ -26,6 +26,7 @@ class MainWindow(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
         self.repository = InteractionRepository()
+        self.current_file: str | None = None
         self._setup_ui()
         self._setup_menu()
         self._connect_signals()
@@ -148,7 +149,7 @@ class MainWindow(QMainWindow):
 
     def _on_save(self) -> None:
         """Save collection to current file."""
-        if not hasattr(self, "current_file"):
+        if not self.current_file:
             self._on_save_as()
         else:
             success, error = SerializationService.export_to_file(

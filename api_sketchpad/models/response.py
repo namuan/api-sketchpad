@@ -24,8 +24,8 @@ class Response(BaseModel):
         """Create a Response instance from a dictionary."""
         return cls(**data)
 
-    def validate(self) -> list[str]:
-        """Validate the response and return a list of error messages."""
+    def get_validation_errors(self) -> list[str]:
+        """Return a list of validation error messages for the response."""
         errors = []
 
         # Validate status code range

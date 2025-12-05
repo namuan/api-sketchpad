@@ -1,6 +1,7 @@
 """Syntax highlighter for JSON and XML content."""
 
 from enum import Enum
+from typing import override
 
 from PyQt6.QtCore import QRegularExpression
 from PyQt6.QtGui import (
@@ -20,7 +21,7 @@ class SyntaxFormat(Enum):
 class SyntaxHighlighter(QSyntaxHighlighter):
     """Syntax highlighter for JSON and XML content."""
 
-    def __init__(self, parent: QTextDocument = None) -> None:
+    def __init__(self, parent: QTextDocument | None = None) -> None:
         super().__init__(parent)
         self._format = SyntaxFormat.JSON
         self._rules = []
@@ -91,15 +92,14 @@ class SyntaxHighlighter(QSyntaxHighlighter):
             )
             self._compiled_rules.append((rx, group, fmt))
 
-    def highlight_block(self, text: str) -> None:
+    @override
+    def highlightBlock(self, text: str | None) -> None:
         """Apply syntax highlighting to the current text block."""
+        t = text or ""
         for pattern, group, fmt in self._compiled_rules:
-            match_iterator = pattern.globalMatch(text)
+            match_iterator = pattern.globalMatch(t)
             while match_iterator.hasNext():
                 match = match_iterator.next()
                 self.setFormat(
                     match.capturedStart(group), match.capturedLength(group), fmt
                 )
-
-
-SyntaxHighlighter.highlightBlock = SyntaxHighlighter.highlight_block

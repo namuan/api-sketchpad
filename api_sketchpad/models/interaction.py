@@ -61,7 +61,7 @@ class Interaction(BaseModel):
 
     MAX_NAME_LENGTH: ClassVar[int] = 255
 
-    def validate(self) -> list[str]:
+    def get_validation_errors(self) -> list[str]:
         errors: list[str] = []
         errors.extend(self._validate_name())
         errors.extend(self._validate_method())
@@ -106,7 +106,7 @@ class Interaction(BaseModel):
                     f"Response for status code {status_code} must be a Response object"
                 )
             else:
-                response_errors = response.validate()
+                response_errors = response.get_validation_errors()
                 errors.extend([
                     f"Response {status_code}: {error}" for error in response_errors
                 ])

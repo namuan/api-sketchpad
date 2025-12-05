@@ -10,7 +10,9 @@ class SerializationService:
     """Handles JSON serialization/deserialization of interactions."""
 
     @staticmethod
-    def serialize_interactions(interactions: list[Interaction]) -> tuple[bool, str]:
+    def serialize_interactions(
+        interactions: list[Interaction],
+    ) -> tuple[bool, str | None, str | None]:
         """Serialize interactions to JSON string."""
         try:
             data = {
@@ -19,9 +21,9 @@ class SerializationService:
                     interaction.model_dump() for interaction in interactions
                 ],
             }
-            return True, json.dumps(data, indent=2)
+            return True, json.dumps(data, indent=2), None
         except (TypeError, ValueError) as e:
-            return False, f"Serialization failed: {e!s}"
+            return False, None, f"Serialization failed: {e!s}"
 
     @staticmethod
     def deserialize_interactions(
@@ -65,7 +67,7 @@ class SerializationService:
                 return False, error
 
             with Path(filepath).open("w", encoding="utf-8") as f:
-                f.write(json_str)
+                f.write(json_str or "")
             return True, None
 
         except PermissionError:

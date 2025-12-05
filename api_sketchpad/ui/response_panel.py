@@ -23,8 +23,8 @@ class ResponsePanel(QWidget):
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
-        self.current_interaction = None
-        self.response_editors = {}
+        self.current_interaction: Interaction | None = None
+        self.response_editors: dict[int, ResponseEditor] = {}
         self._setup_ui()
         self._connect_signals()
 
@@ -69,7 +69,9 @@ class ResponsePanel(QWidget):
         # Add default tabs if empty
         if not interaction.responses:
             for code in [200, 400, 500]:
-                self._add_status_tab(code, interaction.responses.get(code))
+                resp = interaction.responses.get(code) or Response(status_code=code)
+                interaction.responses.setdefault(code, resp)
+                self._add_status_tab(code, resp)
 
     def _add_status_tab(self, status_code: int, response: Response) -> None:
         """Add a new tab for a status code."""
@@ -83,6 +85,8 @@ class ResponsePanel(QWidget):
 
     def _on_add_status(self) -> None:
         """Add new status code tab."""
+        if self.current_interaction is None:
+            return
         status_code, ok = QInputDialog.getInt(
             self, "Add Status Code", "Enter HTTP status code:", 200, 100, 599
         )
@@ -96,6 +100,8 @@ class ResponsePanel(QWidget):
 
     def _on_remove_status(self, index: int | None = None) -> None:
         """Remove current status code tab."""
+        if self.current_interaction is None:
+            return
         if index is None:
             index = self.status_tabs.currentIndex()
 

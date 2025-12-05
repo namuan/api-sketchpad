@@ -28,16 +28,18 @@ class HeadersTableWidget(QWidget):
 
     def _setup_ui(self) -> None:
         """Initialize the UI components."""
-        self.layout = QHBoxLayout(self)
+        main_layout = QHBoxLayout(self)
 
         # Create table widget
         self.table = QTableWidget()
         self.table.setColumnCount(2)
         self.table.setHorizontalHeaderLabels(["Header", "Value"])
-        self.table.horizontalHeader().setSectionResizeMode(
-            QHeaderView.ResizeMode.Stretch
-        )
-        self.table.verticalHeader().setVisible(False)
+        header = self.table.horizontalHeader()
+        if header is not None:
+            header.setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        vheader = self.table.verticalHeader()
+        if vheader is not None:
+            vheader.setVisible(False)
         self.table.setEditTriggers(QTableWidget.EditTrigger.DoubleClicked)
 
         # Create buttons
@@ -51,8 +53,8 @@ class HeadersTableWidget(QWidget):
         button_layout.addStretch()
 
         # Main layout
-        self.layout.addWidget(self.table)
-        self.layout.addLayout(button_layout)
+        main_layout.addWidget(self.table)
+        main_layout.addLayout(button_layout)
 
     def _connect_signals(self) -> None:
         """Connect signals to slots."""
@@ -69,15 +71,15 @@ class HeadersTableWidget(QWidget):
 
         # Key input
         key_label = QLabel("Header Key:")
-        self.key_edit = QLineEdit()
+        key_edit = QLineEdit()
         layout.addWidget(key_label)
-        layout.addWidget(self.key_edit)
+        layout.addWidget(key_edit)
 
         # Value input
         value_label = QLabel("Header Value:")
-        self.value_edit = QLineEdit()
+        value_edit = QLineEdit()
         layout.addWidget(value_label)
-        layout.addWidget(self.value_edit)
+        layout.addWidget(value_edit)
 
         # Buttons
         buttons = QDialogButtonBox(
@@ -88,8 +90,8 @@ class HeadersTableWidget(QWidget):
         layout.addWidget(buttons)
 
         if dialog.exec() == QDialog.DialogCode.Accepted:
-            key = self.key_edit.text().strip()
-            value = self.value_edit.text().strip()
+            key = key_edit.text().strip()
+            value = value_edit.text().strip()
 
             if key:  # Only add if key is non-empty
                 self._add_table_row(key, value)

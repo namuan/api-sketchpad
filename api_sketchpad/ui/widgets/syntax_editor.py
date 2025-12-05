@@ -1,5 +1,7 @@
 """Syntax highlighting editor widget for JSON/XML content."""
 
+from typing import override
+
 from PyQt6.QtCore import QMimeData
 from PyQt6.QtWidgets import QTextEdit, QWidget
 
@@ -35,18 +37,15 @@ class SyntaxHighlightEditor(QTextEdit):
         """Set plain text content."""
         self.setPlainText(text)
 
-    def insert_from_mime_data(self, source: QMimeData) -> None:
+    @override
+    def insertFromMimeData(self, source: QMimeData | None) -> None:
         """Override paste to preserve formatting."""
-        # Get plain text from clipboard
+        if source is None:
+            return
         text = source.text()
         cursor = self.textCursor()
 
-        # Preserve current indentation level
         current_block = cursor.block()
         indent = len(current_block.text()) - len(current_block.text().lstrip())
 
-        # Insert text with preserved indentation
         cursor.insertText(" " * indent + text.strip())
-
-
-SyntaxHighlightEditor.insertFromMimeData = SyntaxHighlightEditor.insert_from_mime_data
