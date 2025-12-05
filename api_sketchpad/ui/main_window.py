@@ -69,6 +69,8 @@ class MainWindow(QMainWindow):
         # Create status bar
         self.status_bar = QStatusBar()
         self.setStatusBar(self.status_bar)
+        # Initial server status
+        self.navigation_panel.update_server_status(None)
 
     def _setup_menu(self) -> None:
         """Create menu bar and actions."""
@@ -98,12 +100,6 @@ class MainWindow(QMainWindow):
 
         menu_bar.addMenu(file_menu)
 
-        server_menu = QMenu("&Server", self)
-        self.start_server_action = QAction("Start Server...", self)
-        self.stop_server_action = QAction("Stop Server", self)
-        server_menu.addAction(self.start_server_action)
-        server_menu.addAction(self.stop_server_action)
-        menu_bar.addMenu(server_menu)
         self.setMenuBar(menu_bar)
 
     def _connect_signals(self) -> None:
@@ -124,8 +120,9 @@ class MainWindow(QMainWindow):
         self.save_action.triggered.connect(self._on_save)
         self.save_as_action.triggered.connect(self._on_save_as)
         self.exit_action.triggered.connect(self.close)
-        self.start_server_action.triggered.connect(self._on_start_server)
-        self.stop_server_action.triggered.connect(self._on_stop_server)
+        self.navigation_panel.start_server_clicked.connect(
+            self._on_toggle_server_button
+        )
 
     def _on_interaction_selected(self, interaction: Interaction) -> None:
         """Handle interaction selection from navigation panel."""
@@ -208,6 +205,12 @@ class MainWindow(QMainWindow):
 
     def _on_start_server(self) -> None:
         """Start mock server on user-specified port."""
+        if not self.repository.has_interactions():
+            self.status_bar.showMessage(
+                "No interactions available. Add one before starting the server.",
+                3000,
+            )
+            return
         port, ok = QInputDialog.getInt(self, "Start Server", "Port:", 8000, 1, 65535)
         if not ok:
             return
@@ -218,6 +221,7 @@ class MainWindow(QMainWindow):
         self._mock_server.start(port)
         self._server_port = port
         self.status_bar.showMessage(f"Server started on port {port}", 3000)
+        self.navigation_panel.update_server_status(port)
 
     def _on_stop_server(self) -> None:
         """Stop the mock server if running."""
@@ -229,3 +233,17 @@ class MainWindow(QMainWindow):
         port = self._server_port or 0
         self._server_port = None
         self.status_bar.showMessage(f"Server stopped on port {port}", 3000)
+        self.navigation_panel.update_server_status(None)
+
+    def _on_toggle_server_button(self) -> None:
+        """Toggle server start/stop when the nav button is clicked."""
+        if self._mock_server is None:
+            if not self.repository.has_interactions():
+                self.status_bar.showMessage(
+                    "Add an interaction before starting the server",
+                    3000,
+                )
+                return
+            self._on_start_server()
+        else:
+            self._on_stop_server()

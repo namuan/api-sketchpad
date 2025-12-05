@@ -4,6 +4,7 @@ from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtWidgets import (
     QAbstractItemView,
     QFrame,
+    QHBoxLayout,
     QLabel,
     QListWidget,
     QListWidgetItem,
@@ -24,6 +25,7 @@ class NavigationPanel(QFrame):
 
     interaction_selected = pyqtSignal(Interaction)
     interactions_empty = pyqtSignal()
+    start_server_clicked = pyqtSignal()
 
     def __init__(
         self, repository: InteractionRepository, parent: QWidget | None = None
@@ -49,14 +51,17 @@ class NavigationPanel(QFrame):
         layout.setContentsMargins(10, 10, 10, 10)
         layout.setSpacing(10)
 
-        # Add Interaction button (styled like api-window.py)
+        # Top controls row: Add Interaction + Start Server
+        top_controls = QHBoxLayout()
+        top_controls.setSpacing(10)
+
         self.add_button = QPushButton("+ Add interaction")
         self.add_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.add_button.setStyleSheet("""
             QPushButton {
                 border: 1px solid #333;
                 border-radius: 4px;
-                padding: 6px;
+                padding: 6px 10px;
                 background-color: white;
                 text-align: left;
                 font-weight: bold;
@@ -65,7 +70,26 @@ class NavigationPanel(QFrame):
                 background-color: #f0f0f0;
             }
         """)
-        layout.addWidget(self.add_button)
+        top_controls.addWidget(self.add_button)
+
+        self.server_button = QPushButton("Start Server")
+        self.server_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.server_button.setStyleSheet("""
+            QPushButton {
+                border: 1px solid #333;
+                border-radius: 4px;
+                padding: 6px 10px;
+                background-color: white;
+                text-align: left;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #f0f0f0;
+            }
+        """)
+        top_controls.addWidget(self.server_button)
+
+        layout.addLayout(top_controls)
 
         # Empty state hint shown when there are no interactions
         self.empty_state_label = QLabel(
@@ -104,6 +128,7 @@ class NavigationPanel(QFrame):
     def _connect_signals(self) -> None:
         """Connect signals to slots."""
         self.add_button.clicked.connect(self.on_add_interaction)
+        self.server_button.clicked.connect(self.start_server_clicked.emit)
         self.interaction_list.currentItemChanged.connect(self.on_interaction_selected)
 
     def refresh_list(self) -> None:
@@ -181,6 +206,13 @@ class NavigationPanel(QFrame):
         unblock = False
         self.interaction_list.blockSignals(unblock)
         self._is_refreshing = False
+
+    def update_server_status(self, port: int | None) -> None:
+        """Update server button text to reflect server running state."""
+        if port is not None:
+            self.server_button.setText(f"Stop Server (port {port})")
+        else:
+            self.server_button.setText("Start Server")
 
     def _on_delete_interaction(self, interaction: Interaction) -> None:
         """Handle deleting an interaction."""
