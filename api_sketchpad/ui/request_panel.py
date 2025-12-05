@@ -3,10 +3,11 @@
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWidgets import (
     QComboBox,
-    QFormLayout,
+    QFrame,
     QHBoxLayout,
     QLabel,
     QLineEdit,
+    QScrollArea,
     QTextEdit,
     QVBoxLayout,
     QWidget,
@@ -16,10 +17,11 @@ from ..models.interaction import Interaction
 from ..services.validation import ValidationService
 from .syntax_highlighter import SyntaxFormat
 from .widgets.headers_table import HeadersTableWidget
+from .widgets.query_params import QueryParamsWidget
 from .widgets.syntax_editor import SyntaxHighlightEditor
 
 
-class RequestPanel(QWidget):
+class RequestPanel(QFrame):
     """Middle panel for configuring API request parameters."""
 
     interaction_updated = pyqtSignal(Interaction)
@@ -33,19 +35,47 @@ class RequestPanel(QWidget):
 
     def _setup_ui(self) -> None:
         """Initialize UI components."""
-        main_layout = QVBoxLayout(self)
+        self.setStyleSheet("""
+            RequestPanel {
+                border: 1px solid #333;
+                background-color: white;
+            }
+        """)
 
-        # Interaction metadata
-        meta_layout = QFormLayout()
+        # Main layout with scroll area
+        frame_layout = QVBoxLayout(self)
+        frame_layout.setContentsMargins(0, 0, 0, 0)
 
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.Shape.NoFrame)
+
+        content = QWidget()
+        main_layout = QVBoxLayout(content)
+        main_layout.setSpacing(15)
+        main_layout.setContentsMargins(15, 15, 15, 15)
+
+        # Name Input
         self.name_field = QLineEdit()
+        self.name_field.setPlaceholderText("Enter API Interaction name")
         self.name_field.setMaxLength(255)
-        meta_layout.addRow(QLabel("Interaction Name:"), self.name_field)
+        self.name_field.setStyleSheet(
+            "border: 1px solid #333; border-radius: 4px; padding: 5px;"
+        )
+        main_layout.addWidget(self.name_field)
 
+        # Description Input
         self.description_field = QTextEdit()
-        meta_layout.addRow(QLabel("Description:"), self.description_field)
+        self.description_field.setPlaceholderText("Enter API Interaction description")
+        self.description_field.setFixedHeight(100)
+        self.description_field.setStyleSheet(
+            "border: 1px solid #333; border-radius: 4px; padding: 5px;"
+        )
+        main_layout.addWidget(self.description_field)
 
         # HTTP method and endpoint
+        endpoint_layout = QHBoxLayout()
+
         self.method_dropdown = QComboBox()
         self.method_dropdown.addItems([
             "GET",
@@ -56,28 +86,46 @@ class RequestPanel(QWidget):
             "HEAD",
             "OPTIONS",
         ])
+        self.method_dropdown.setStyleSheet("""
+            QComboBox {
+                border: 1px solid #333;
+                border-radius: 4px;
+                padding: 5px;
+                background-color: white;
+            }
+        """)
 
         self.path_field = QLineEdit()
         self.path_field.setPlaceholderText("/api/endpoint")
+        self.path_field.setStyleSheet(
+            "border: 1px solid #333; border-radius: 4px; padding: 5px;"
+        )
 
-        endpoint_layout = QHBoxLayout()
         endpoint_layout.addWidget(self.method_dropdown)
-        endpoint_layout.addWidget(self.path_field)
-        meta_layout.addRow(QLabel("Endpoint:"), endpoint_layout)
+        endpoint_layout.addWidget(self.path_field, 1)
+        main_layout.addLayout(endpoint_layout)
 
-        main_layout.addLayout(meta_layout)
-
-        # Request headers
+        # Request headers (now uses styled HeadersTableWidget)
         self.headers_table = HeadersTableWidget()
-        main_layout.addWidget(QLabel("Request Headers:"))
         main_layout.addWidget(self.headers_table)
 
-        # Request body
-        self.body_editor = SyntaxHighlightEditor()
-        main_layout.addWidget(QLabel("Request Body:"))
-        main_layout.addWidget(self.body_editor)
+        # Query params section
+        self.query_params_widget = QueryParamsWidget()
+        main_layout.addWidget(self.query_params_widget)
 
-        main_layout.addStretch()
+        # Request body section
+        body_label = QLabel("Request Body")
+        body_label.setStyleSheet("font-size: 12px; color: #555;")
+        main_layout.addWidget(body_label)
+
+        self.body_editor = SyntaxHighlightEditor()
+        self.body_editor.setStyleSheet(
+            "border: 1px solid #333; border-radius: 4px; padding: 5px;"
+        )
+        main_layout.addWidget(self.body_editor, 1)  # Give it remaining vertical space
+
+        scroll.setWidget(content)
+        frame_layout.addWidget(scroll)
 
     def _connect_signals(self) -> None:
         """Connect UI signals to slots."""
@@ -86,6 +134,7 @@ class RequestPanel(QWidget):
         self.method_dropdown.currentTextChanged.connect(self._on_field_changed)
         self.path_field.textChanged.connect(self._on_field_changed)
         self.headers_table.headers_changed.connect(self._on_field_changed)
+        self.query_params_widget.params_changed.connect(self._on_field_changed)
         self.body_editor.textChanged.connect(self._on_field_changed)
 
     def load_interaction(self, interaction: Interaction) -> None:
@@ -100,6 +149,7 @@ class RequestPanel(QWidget):
         self.method_dropdown.setCurrentText(interaction.method)
         self.path_field.setText(interaction.path)
         self.headers_table.set_headers(interaction.request_headers)
+        self.query_params_widget.set_params(interaction.query_params)
         self.body_editor.set_text(interaction.request_body)
 
         # Set editor format based on Content-Type header
@@ -122,6 +172,7 @@ class RequestPanel(QWidget):
         ci.method = self.method_dropdown.currentText()
         ci.path = self.path_field.text()
         ci.request_headers = self.headers_table.get_headers()
+        ci.query_params = self.query_params_widget.get_params()
         ci.request_body = self.body_editor.get_text()
 
     def _on_field_changed(self) -> None:
@@ -135,10 +186,14 @@ class RequestPanel(QWidget):
                 self.current_interaction.path
             )
             if not valid:
-                self.path_field.setStyleSheet("border: 1px solid red;")
+                self.path_field.setStyleSheet(
+                    "border: 1px solid red; border-radius: 4px; padding: 5px;"
+                )
                 self.path_field.setToolTip(error)
             else:
-                self.path_field.setStyleSheet("")
+                self.path_field.setStyleSheet(
+                    "border: 1px solid #333; border-radius: 4px; padding: 5px;"
+                )
                 self.path_field.setToolTip("")
 
             self.interaction_updated.emit(self.current_interaction)

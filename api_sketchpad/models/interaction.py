@@ -23,6 +23,10 @@ class Interaction(BaseModel):
         },
         description="Request headers",
     )
+    query_params: dict[str, str] = Field(
+        default_factory=dict,
+        description="Query parameters",
+    )
     request_body: str = Field(default="", description="Request body content")
     responses: dict[int, Response] = Field(
         default_factory=lambda: {

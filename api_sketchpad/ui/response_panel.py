@@ -1,12 +1,12 @@
 """Response panel for defining expected API responses."""
 
-from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtWidgets import (
+    QButtonGroup,
+    QFrame,
     QHBoxLayout,
-    QInputDialog,
-    QMessageBox,
     QPushButton,
-    QTabWidget,
+    QStackedWidget,
     QVBoxLayout,
     QWidget,
 )
@@ -16,7 +16,7 @@ from ..models.response import Response
 from .widgets.response_editor import ResponseEditor
 
 
-class ResponsePanel(QWidget):
+class ResponsePanel(QFrame):
     """Right panel for defining expected responses by status code."""
 
     interaction_updated = pyqtSignal(Interaction)
@@ -30,102 +30,129 @@ class ResponsePanel(QWidget):
 
     def _setup_ui(self) -> None:
         """Initialize UI components."""
+        self.setStyleSheet("""
+            ResponsePanel {
+                border: 1px solid #333;
+                background-color: white;
+            }
+        """)
+
         main_layout = QVBoxLayout(self)
+        main_layout.setContentsMargins(10, 10, 10, 10)
+        main_layout.setSpacing(10)
 
-        # Status code tabs
-        self.status_tabs = QTabWidget()
-        self.status_tabs.setTabsClosable(True)
-        main_layout.addWidget(self.status_tabs)
+        # Status code buttons (segmented control)
+        buttons_layout = QHBoxLayout()
+        buttons_layout.setSpacing(0)
+        buttons_layout.addStretch()
 
-        # Add/Remove buttons
-        button_layout = QHBoxLayout()
+        self.status_button_group = QButtonGroup(self)
+        self.status_button_group.setExclusive(True)
+        self.status_buttons: dict[int, QPushButton] = {}
 
-        self.add_button = QPushButton("Add Status Code")
-        self.remove_button = QPushButton("Remove Status Code")
+        for i, code in enumerate([200, 400, 500]):
+            btn = QPushButton(str(code))
+            btn.setCheckable(True)
+            btn.setCursor(Qt.CursorShape.PointingHandCursor)
+            btn.setFixedSize(70, 30)
 
-        button_layout.addWidget(self.add_button)
-        button_layout.addWidget(self.remove_button)
-        button_layout.addStretch()
+            # Style for segmented button look
+            border_radius = ""
+            if i == 0:
+                border_radius = (
+                    "border-top-left-radius: 4px; border-bottom-left-radius: 4px;"
+                )
+            elif i == 2:
+                border_radius = (
+                    "border-top-right-radius: 4px; border-bottom-right-radius: 4px;"
+                )
 
-        main_layout.addLayout(button_layout)
+            btn.setStyleSheet(f"""
+                QPushButton {{
+                    background: white;
+                    border: 1px solid #333;
+                    font-weight: bold;
+                    font-size: 14px;
+                    color: #333;
+                    {border_radius}
+                    margin-left: -1px;
+                }}
+                QPushButton:checked {{
+                    background: #e0e0e0;
+                    color: black;
+                }}
+                QPushButton:hover {{
+                    background: #f5f5f5;
+                }}
+                QPushButton:checked:hover {{
+                    background: #d0d0d0;
+                }}
+            """)
+
+            self.status_button_group.addButton(btn, code)
+            self.status_buttons[code] = btn
+            buttons_layout.addWidget(btn)
+
+        buttons_layout.addStretch()
+        main_layout.addLayout(buttons_layout)
+
+        # Stacked widget for response editors
+        self.editor_stack = QStackedWidget()
+        main_layout.addWidget(self.editor_stack, 1)
+
+        # Create default editors immediately (before any interaction is loaded)
+        self._create_default_editors()
+
+    def _create_default_editors(self) -> None:
+        """Create default empty editors for each status code."""
+        for code in [200, 400, 500]:
+            response = Response(status_code=code)
+            self._add_response_editor(code, response)
+
+        # Select 200 by default
+        self.status_buttons[200].setChecked(True)
+        self.editor_stack.setCurrentWidget(self.response_editors[200])
 
     def _connect_signals(self) -> None:
         """Connect signals to slots."""
-        self.add_button.clicked.connect(self._on_add_status)
-        self.remove_button.clicked.connect(self._on_remove_status)
-        self.status_tabs.tabCloseRequested.connect(self._on_remove_status)
-        self.status_tabs.currentChanged.connect(self._on_tab_changed)
+        self.status_button_group.idClicked.connect(self._on_status_selected)
 
     def load_interaction(self, interaction: Interaction) -> None:
-        """Load interaction responses into tabs."""
+        """Load interaction responses into editors."""
         self.current_interaction = interaction
         self.response_editors = {}
-        self.status_tabs.clear()
 
-        # Create tabs for each status code
-        for status_code, response in interaction.responses.items():
-            self._add_status_tab(status_code, response)
+        # Clear the stack
+        while self.editor_stack.count() > 0:
+            widget = self.editor_stack.widget(0)
+            self.editor_stack.removeWidget(widget)
+            widget.deleteLater()
 
-        # Add default tabs if empty
-        if not interaction.responses:
-            for code in [200, 400, 500]:
-                resp = interaction.responses.get(code) or Response(status_code=code)
-                interaction.responses.setdefault(code, resp)
-                self._add_status_tab(code, resp)
+        # Create editors for each status code (200, 400, 500)
+        for code in [200, 400, 500]:
+            response = interaction.responses.get(code) or Response(status_code=code)
+            interaction.responses.setdefault(code, response)
+            self._add_response_editor(code, response)
 
-    def _add_status_tab(self, status_code: int, response: Response) -> None:
-        """Add a new tab for a status code."""
+        # Select 200 by default
+        self.status_buttons[200].setChecked(True)
+        self._on_status_selected(200)
+
+    def _add_response_editor(self, status_code: int, response: Response) -> None:
+        """Add a response editor for a status code."""
         editor = ResponseEditor()
         editor.load_response(response)
         editor.headers_table.headers_changed.connect(self._on_response_changed)
         editor.body_editor.textChanged.connect(self._on_response_changed)
 
-        self.status_tabs.addTab(editor, str(status_code))
+        self.editor_stack.addWidget(editor)
         self.response_editors[status_code] = editor
 
-    def _on_add_status(self) -> None:
-        """Add new status code tab."""
-        if self.current_interaction is None:
-            return
-        status_code, ok = QInputDialog.getInt(
-            self, "Add Status Code", "Enter HTTP status code:", 200, 100, 599
-        )
-
-        if ok and status_code not in self.response_editors:
-            # Create new response
-            response = Response(status_code=status_code)
-            self.current_interaction.responses[status_code] = response
-            self._add_status_tab(status_code, response)
-            self.interaction_updated.emit(self.current_interaction)
-
-    def _on_remove_status(self, index: int | None = None) -> None:
-        """Remove current status code tab."""
-        if self.current_interaction is None:
-            return
-        if index is None:
-            index = self.status_tabs.currentIndex()
-
-        status_code = int(self.status_tabs.tabText(index))
-
-        # Confirm removal for non-default codes
-        if status_code not in {200, 400, 500}:
-            reply = QMessageBox.question(
-                self,
-                "Confirm Removal",
-                f"Remove status code {status_code}?",
-                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-            )
-            if reply != QMessageBox.StandardButton.Yes:
-                return
-
-        # Remove from interaction and UI
-        del self.current_interaction.responses[status_code]
-        self.status_tabs.removeTab(index)
-        del self.response_editors[status_code]
-        self.interaction_updated.emit(self.current_interaction)
-
-    def _on_tab_changed(self, index: int) -> None:
-        """Handle tab changes - nothing needed currently."""
+    def _on_status_selected(self, status_code: int) -> None:
+        """Handle status code button selection."""
+        if status_code in self.response_editors:
+            editor = self.response_editors[status_code]
+            self.editor_stack.setCurrentWidget(editor)
 
     def _on_response_changed(self) -> None:
         """Save changes when any response field is modified."""

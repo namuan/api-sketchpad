@@ -1,4 +1,4 @@
-"""Headers table widget for managing HTTP headers."""
+"""Query params widget for managing URL query parameters."""
 
 from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtWidgets import (
@@ -12,10 +12,10 @@ from PyQt6.QtWidgets import (
 from .key_value_row import KeyValueRow
 
 
-class HeadersTableWidget(QWidget):
-    """Widget for managing HTTP headers with key-value rows."""
+class QueryParamsWidget(QWidget):
+    """Widget for managing query parameters with key-value rows."""
 
-    headers_changed = pyqtSignal(dict)
+    params_changed = pyqtSignal(dict)
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -30,10 +30,10 @@ class HeadersTableWidget(QWidget):
 
         # Header row with label and add button
         header_layout = QHBoxLayout()
-        header_label = QLabel("Headers")
+        header_label = QLabel("Query Params")
         header_label.setStyleSheet("font-size: 12px; color: #555;")
 
-        self.add_button = QPushButton("+ Add new header")
+        self.add_button = QPushButton("+ Add new query param")
         self.add_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.add_button.setStyleSheet("""
             QPushButton {
@@ -47,7 +47,7 @@ class HeadersTableWidget(QWidget):
                 background-color: #f0f0f0;
             }
         """)
-        self.add_button.clicked.connect(self._on_add_header)
+        self.add_button.clicked.connect(self._on_add_param)
 
         header_layout.addWidget(header_label)
         header_layout.addStretch()
@@ -56,9 +56,9 @@ class HeadersTableWidget(QWidget):
 
         # Container for rows
         self.container = QWidget()
-        self.container.setObjectName("headersContainer")
+        self.container.setObjectName("queryParamsContainer")
         self.container.setStyleSheet("""
-            #headersContainer {
+            #queryParamsContainer {
                 border: 1px solid #333;
                 border-radius: 0px;
                 background-color: white;
@@ -81,10 +81,10 @@ class HeadersTableWidget(QWidget):
 
         main_layout.addWidget(self.container)
 
-    def _on_add_header(self) -> None:
-        """Add a new empty header row."""
+    def _on_add_param(self) -> None:
+        """Add a new empty query param row."""
         self._add_row("", "")
-        self._emit_headers_changed()
+        self._emit_params_changed()
 
     def _add_row(self, name: str, value: str) -> KeyValueRow:
         """Add a new row with the given name and value."""
@@ -92,49 +92,46 @@ class HeadersTableWidget(QWidget):
         row.set_name(name)
         row.set_value(value)
         row.delete_clicked.connect(lambda r=row: self._on_remove_row(r))
-        row.value_changed.connect(self._emit_headers_changed)
+        row.value_changed.connect(self._emit_params_changed)
 
         self._rows.append(row)
         self.container_layout.addWidget(row)
         return row
 
     def _on_remove_row(self, row: KeyValueRow) -> None:
-        """Remove a header row."""
+        """Remove a query param row."""
         if row in self._rows:
             self._rows.remove(row)
             self.container_layout.removeWidget(row)
             row.deleteLater()
-            self._emit_headers_changed()
+            self._emit_params_changed()
 
-    def _emit_headers_changed(self) -> None:
-        """Emit the headers_changed signal."""
-        self.headers_changed.emit(self.get_headers())
+    def _emit_params_changed(self) -> None:
+        """Emit the params_changed signal."""
+        self.params_changed.emit(self.get_params())
 
-    def set_headers(self, headers: dict) -> None:
-        """Populate widget with headers."""
+    def set_params(self, params: dict) -> None:
+        """Populate widget with query params."""
         # Clear existing rows
         for row in self._rows[:]:
             self.container_layout.removeWidget(row)
             row.deleteLater()
         self._rows.clear()
 
-        # Add rows for each header
-        for key, value in headers.items():
+        # Add rows for each param
+        for key, value in params.items():
             self._add_row(key, value)
 
-        # Add empty rows to have at least 2 rows total
-        while len(self._rows) < 2:
-            self._add_row("", "")
+        # Add empty rows if none exist
+        if not params:
+            for _ in range(3):
+                self._add_row("", "")
 
-    def get_headers(self) -> dict:
-        """Get headers as dictionary."""
-        headers = {}
+    def get_params(self) -> dict:
+        """Get query params as dictionary."""
+        params = {}
         for row in self._rows:
             name = row.get_name()
             if name:  # Only include non-empty keys
-                headers[name] = row.get_value()
-        return headers
-
-    def _emit_headers_changed(self) -> None:
-        """Emit headers_changed signal with current headers."""
-        self.headers_changed.emit(self.get_headers())
+                params[name] = row.get_value()
+        return params

@@ -1,15 +1,17 @@
 """Main application window for API SketchPad."""
 
-from PyQt6.QtCore import QSize, Qt
-from PyQt6.QtGui import QAction
+from PyQt6.QtCore import QSize
+from PyQt6.QtGui import QAction, QFont
 from PyQt6.QtWidgets import (
+    QApplication,
     QFileDialog,
+    QHBoxLayout,
     QMainWindow,
     QMenu,
     QMenuBar,
     QMessageBox,
-    QSplitter,
     QStatusBar,
+    QWidget,
 )
 
 from ..models.interaction import Interaction
@@ -33,27 +35,32 @@ class MainWindow(QMainWindow):
 
     def _setup_ui(self) -> None:
         """Initialize UI components."""
-        self.setWindowTitle("API SketchPad")
+        self.setWindowTitle("API Interaction Designer")
         self.setMinimumSize(QSize(1200, 800))
 
-        # Create main splitter
-        main_splitter = QSplitter(Qt.Orientation.Horizontal)
+        # Set global font
+        app = QApplication.instance()
+        if app:
+            font = QFont("Arial", 10)
+            app.setFont(font)
+
+        # Central widget with horizontal layout (3 columns like api-window.py)
+        central_widget = QWidget()
+        self.setCentralWidget(central_widget)
+
+        main_layout = QHBoxLayout(central_widget)
+        main_layout.setSpacing(15)
+        main_layout.setContentsMargins(20, 20, 20, 20)
 
         # Create panels
         self.navigation_panel = NavigationPanel(self.repository, self)
         self.request_panel = RequestPanel()
         self.response_panel = ResponsePanel()
 
-        # Add panels to splitter
-        main_splitter.addWidget(self.navigation_panel)
-        main_splitter.addWidget(self.request_panel)
-        main_splitter.addWidget(self.response_panel)
-
-        # Set initial sizes
-        main_splitter.setSizes([200, 600, 400])
-
-        # Set central widget
-        self.setCentralWidget(main_splitter)
+        # Add panels with flex ratios (2:3:3 like api-window.py)
+        main_layout.addWidget(self.navigation_panel, 2)
+        main_layout.addWidget(self.request_panel, 3)
+        main_layout.addWidget(self.response_panel, 3)
 
         # Create status bar
         self.status_bar = QStatusBar()

@@ -1,6 +1,6 @@
 """Response editor widget for API responses."""
 
-from PyQt6.QtWidgets import QLabel, QVBoxLayout, QWidget
+from PyQt6.QtWidgets import QVBoxLayout, QWidget
 
 from ...models.response import Response
 from ..syntax_highlighter import SyntaxFormat
@@ -18,17 +18,21 @@ class ResponseEditor(QWidget):
     def _setup_ui(self) -> None:
         """Initialize UI components."""
         layout = QVBoxLayout(self)
+        layout.setContentsMargins(5, 15, 5, 5)
+        layout.setSpacing(15)
 
-        # Response headers
-        layout.addWidget(QLabel("Response Headers:"))
+        # Response headers (uses styled HeadersTableWidget)
         self.headers_table = HeadersTableWidget()
         layout.addWidget(self.headers_table)
 
-        # Response body
-        layout.addWidget(QLabel("Response Body:"))
+        # Response body section
         self.body_editor = SyntaxHighlightEditor()
         self.body_editor.set_format(SyntaxFormat.JSON)
-        layout.addWidget(self.body_editor)
+        self.body_editor.setPlaceholderText("< Request body >")
+        self.body_editor.setStyleSheet(
+            "border: 1px solid #333; border-radius: 4px; padding: 5px;"
+        )
+        layout.addWidget(self.body_editor, 1)  # Expand to fill
 
     def load_response(self, response: Response) -> None:
         """Load response data into editor."""
