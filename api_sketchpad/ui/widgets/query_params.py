@@ -103,6 +103,7 @@ class QueryParamsWidget(QWidget):
         if row in self._rows:
             self._rows.remove(row)
             self.container_layout.removeWidget(row)
+            row.setParent(None)
             row.deleteLater()
             self._emit_params_changed()
 
@@ -115,17 +116,13 @@ class QueryParamsWidget(QWidget):
         # Clear existing rows
         for row in self._rows[:]:
             self.container_layout.removeWidget(row)
+            row.setParent(None)
             row.deleteLater()
         self._rows.clear()
 
         # Add rows for each param
         for key, value in params.items():
             self._add_row(key, value)
-
-        # Add empty rows if none exist
-        if not params:
-            for _ in range(3):
-                self._add_row("", "")
 
     def get_params(self) -> dict:
         """Get query params as dictionary."""
