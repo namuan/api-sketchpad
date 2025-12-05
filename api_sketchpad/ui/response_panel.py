@@ -69,6 +69,9 @@ class ResponsePanel(QFrame):
                     "border-top-right-radius: 4px; border-bottom-right-radius: 4px;"
                 )
 
+            # Apply negative left margin only for non-first buttons to collapse inner borders
+            margin_left = "0px" if i == 0 else "-1px"
+
             btn.setStyleSheet(f"""
                 QPushButton {{
                     background: white;
@@ -77,7 +80,7 @@ class ResponsePanel(QFrame):
                     font-size: 14px;
                     color: #333;
                     {border_radius}
-                    margin-left: -1px;
+                    margin-left: {margin_left};
                 }}
                 QPushButton:checked {{
                     background: #e0e0e0;
