@@ -115,6 +115,9 @@ max-nested-blocks = 3  # Maximum nested block depth (PLR1702)
 "api_sketchpad/ui/syntax_highlighter.py" = [
     "N802",    # Allow Qt override method name 'highlightBlock'
 ]
+"api_sketchpad/services/mock_server.py" = [
+    "N802",
+]
 "api_sketchpad/ui/widgets/syntax_editor.py" = [
     "N802",    # Allow Qt override method name 'insertFromMimeData'
 ]

@@ -6,6 +6,7 @@ from PyQt6.QtWidgets import (
     QApplication,
     QFileDialog,
     QHBoxLayout,
+    QInputDialog,
     QMainWindow,
     QMenu,
     QMenuBar,
@@ -16,6 +17,7 @@ from PyQt6.QtWidgets import (
 
 from ..models.interaction import Interaction
 from ..repository import InteractionRepository
+from ..services.mock_server import MockServer
 from ..services.serialization import SerializationService
 from .navigation_panel import NavigationPanel
 from .request_panel import RequestPanel
@@ -29,6 +31,8 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.repository = InteractionRepository()
         self.current_file: str | None = None
+        self._mock_server: MockServer | None = None
+        self._server_port: int | None = None
         self._setup_ui()
         self._setup_menu()
         self._connect_signals()
@@ -93,6 +97,13 @@ class MainWindow(QMainWindow):
         file_menu.addAction(self.exit_action)
 
         menu_bar.addMenu(file_menu)
+
+        server_menu = QMenu("&Server", self)
+        self.start_server_action = QAction("Start Server...", self)
+        self.stop_server_action = QAction("Stop Server", self)
+        server_menu.addAction(self.start_server_action)
+        server_menu.addAction(self.stop_server_action)
+        menu_bar.addMenu(server_menu)
         self.setMenuBar(menu_bar)
 
     def _connect_signals(self) -> None:
@@ -113,6 +124,8 @@ class MainWindow(QMainWindow):
         self.save_action.triggered.connect(self._on_save)
         self.save_as_action.triggered.connect(self._on_save_as)
         self.exit_action.triggered.connect(self.close)
+        self.start_server_action.triggered.connect(self._on_start_server)
+        self.stop_server_action.triggered.connect(self._on_stop_server)
 
     def _on_interaction_selected(self, interaction: Interaction) -> None:
         """Handle interaction selection from navigation panel."""
@@ -192,3 +205,27 @@ class MainWindow(QMainWindow):
         """Clear middle and right panels when no interactions exist."""
         self.request_panel.clear()
         self.response_panel.clear()
+
+    def _on_start_server(self) -> None:
+        """Start mock server on user-specified port."""
+        port, ok = QInputDialog.getInt(self, "Start Server", "Port:", 8000, 1, 65535)
+        if not ok:
+            return
+        if self._mock_server:
+            QMessageBox.information(self, "Server", "Server is already running")
+            return
+        self._mock_server = MockServer(self.repository.interactions)
+        self._mock_server.start(port)
+        self._server_port = port
+        self.status_bar.showMessage(f"Server started on port {port}", 3000)
+
+    def _on_stop_server(self) -> None:
+        """Stop the mock server if running."""
+        if not self._mock_server:
+            QMessageBox.information(self, "Server", "Server is not running")
+            return
+        self._mock_server.stop()
+        self._mock_server = None
+        port = self._server_port or 0
+        self._server_port = None
+        self.status_bar.showMessage(f"Server stopped on port {port}", 3000)
