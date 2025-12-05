@@ -31,6 +31,7 @@ class NavigationPanel(QFrame):
         super().__init__(parent)
         self.repository = repository
         self._item_widgets: dict[int, InteractionListItem] = {}
+        self._is_refreshing = False
         self._setup_ui()
         self._connect_signals()
         self.refresh_list()
@@ -92,6 +93,7 @@ class NavigationPanel(QFrame):
                 background-color: transparent;
             }
         """)
+        self.interaction_list.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.interaction_list.setSelectionMode(
             QAbstractItemView.SelectionMode.SingleSelection
         )
@@ -106,6 +108,9 @@ class NavigationPanel(QFrame):
 
     def refresh_list(self) -> None:
         """Refresh the list of interactions from repository."""
+        self._is_refreshing = True
+        block = True
+        self.interaction_list.blockSignals(block)
         self.interaction_list.clear()
         self._item_widgets.clear()
 
@@ -173,6 +178,9 @@ class NavigationPanel(QFrame):
                 }
                 """
             )
+        unblock = False
+        self.interaction_list.blockSignals(unblock)
+        self._is_refreshing = False
 
     def _on_delete_interaction(self, interaction: Interaction) -> None:
         """Handle deleting an interaction."""
@@ -199,6 +207,8 @@ class NavigationPanel(QFrame):
         self, current: QListWidgetItem | None, _previous: QListWidgetItem | None
     ) -> None:
         """Handle interaction selection."""
+        if self._is_refreshing:
+            return
         if current is not None:
             interaction = current.data(Qt.ItemDataRole.UserRole)
             self.repository.set_current_interaction(interaction)
