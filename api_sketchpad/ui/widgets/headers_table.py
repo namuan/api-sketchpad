@@ -2,6 +2,7 @@
 
 from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtWidgets import (
+    QCompleter,
     QHBoxLayout,
     QLabel,
     QPushButton,
@@ -20,6 +21,44 @@ class HeadersTableWidget(QWidget):
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self._rows: list[KeyValueRow] = []
+        self._header_name_suggestions: list[str] = [
+            "Accept",
+            "Content-Type",
+            "Authorization",
+            "Cache-Control",
+            "Accept-Language",
+            "Accept-Encoding",
+            "User-Agent",
+        ]
+        self._value_suggestions_map: dict[str, list[str]] = {
+            "Content-Type": [
+                "application/json",
+                "application/xml",
+                "text/plain",
+                "multipart/form-data",
+                "application/x-www-form-urlencoded",
+                "application/octet-stream",
+            ],
+            "Accept": [
+                "application/json",
+                "application/xml",
+                "text/plain",
+                "*/*",
+            ],
+            "Authorization": [
+                "Bearer ",
+                "Basic ",
+            ],
+        }
+        self._default_value_suggestions: list[str] = [
+            "application/json",
+            "text/plain",
+        ]
+        self._name_completer = QCompleter(self._header_name_suggestions)
+        self._name_completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
+        self._name_completer.setCompletionMode(
+            QCompleter.CompletionMode.PopupCompletion
+        )
         self._setup_ui()
 
     def _setup_ui(self) -> None:
@@ -93,6 +132,11 @@ class HeadersTableWidget(QWidget):
         row.set_value(value)
         row.delete_clicked.connect(lambda r=row: self._on_remove_row(r))
         row.value_changed.connect(self._emit_headers_changed)
+        row.name_input.setCompleter(self._name_completer)
+        self._update_value_completer(row)
+        row.name_input.textChanged.connect(
+            lambda _text, r=row: self._update_value_completer(r)
+        )
 
         self._rows.append(row)
         self.container_layout.addWidget(row)
@@ -132,3 +176,13 @@ class HeadersTableWidget(QWidget):
             if name:  # Only include non-empty keys
                 headers[name] = row.get_value()
         return headers
+
+    def _update_value_completer(self, row: KeyValueRow) -> None:
+        name = row.get_name()
+        suggestions = self._value_suggestions_map.get(
+            name, self._default_value_suggestions
+        )
+        completer = QCompleter(suggestions)
+        completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
+        completer.setCompletionMode(QCompleter.CompletionMode.PopupCompletion)
+        row.value_input.setCompleter(completer)
