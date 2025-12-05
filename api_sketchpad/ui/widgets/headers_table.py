@@ -11,6 +11,8 @@ from PyQt6.QtWidgets import (
 
 from .key_value_row import KeyValueRow
 
+MIN_TOTAL_ROWS = 2
+
 
 class HeadersTableWidget(QWidget):
     """Widget for managing HTTP headers with key-value rows."""
@@ -123,7 +125,7 @@ class HeadersTableWidget(QWidget):
             self._add_row(key, value)
 
         # Add empty rows to have at least 2 rows total
-        while len(self._rows) < 2:
+        while len(self._rows) < MIN_TOTAL_ROWS:
             self._add_row("", "")
 
     def get_headers(self) -> dict:
@@ -134,7 +136,3 @@ class HeadersTableWidget(QWidget):
             if name:  # Only include non-empty keys
                 headers[name] = row.get_value()
         return headers
-
-    def _emit_headers_changed(self) -> None:
-        """Emit headers_changed signal with current headers."""
-        self.headers_changed.emit(self.get_headers())

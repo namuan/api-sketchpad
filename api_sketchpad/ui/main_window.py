@@ -40,7 +40,7 @@ class MainWindow(QMainWindow):
 
         # Set global font
         app = QApplication.instance()
-        if app:
+        if isinstance(app, QApplication):
             font = QFont("Arial", 10)
             app.setFont(font)
 

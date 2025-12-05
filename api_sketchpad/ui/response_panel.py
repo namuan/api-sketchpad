@@ -15,6 +15,8 @@ from ..models.interaction import Interaction
 from ..models.response import Response
 from .widgets.response_editor import ResponseEditor
 
+DEFAULT_STATUS_CODES = (200, 400, 500)
+
 
 class ResponsePanel(QFrame):
     """Right panel for defining expected responses by status code."""
@@ -50,7 +52,7 @@ class ResponsePanel(QFrame):
         self.status_button_group.setExclusive(True)
         self.status_buttons: dict[int, QPushButton] = {}
 
-        for i, code in enumerate([200, 400, 500]):
+        for i, code in enumerate(DEFAULT_STATUS_CODES):
             btn = QPushButton(str(code))
             btn.setCheckable(True)
             btn.setCursor(Qt.CursorShape.PointingHandCursor)
@@ -62,7 +64,7 @@ class ResponsePanel(QFrame):
                 border_radius = (
                     "border-top-left-radius: 4px; border-bottom-left-radius: 4px;"
                 )
-            elif i == 2:
+            elif i == len(DEFAULT_STATUS_CODES) - 1:
                 border_radius = (
                     "border-top-right-radius: 4px; border-bottom-right-radius: 4px;"
                 )
@@ -105,13 +107,15 @@ class ResponsePanel(QFrame):
 
     def _create_default_editors(self) -> None:
         """Create default empty editors for each status code."""
-        for code in [200, 400, 500]:
+        for code in DEFAULT_STATUS_CODES:
             response = Response(status_code=code)
             self._add_response_editor(code, response)
 
         # Select 200 by default
-        self.status_buttons[200].setChecked(True)
-        self.editor_stack.setCurrentWidget(self.response_editors[200])
+        self.status_buttons[DEFAULT_STATUS_CODES[0]].setChecked(True)
+        self.editor_stack.setCurrentWidget(
+            self.response_editors[DEFAULT_STATUS_CODES[0]]
+        )
 
     def _connect_signals(self) -> None:
         """Connect signals to slots."""
@@ -126,17 +130,18 @@ class ResponsePanel(QFrame):
         while self.editor_stack.count() > 0:
             widget = self.editor_stack.widget(0)
             self.editor_stack.removeWidget(widget)
-            widget.deleteLater()
+            if widget is not None:
+                widget.deleteLater()
 
         # Create editors for each status code (200, 400, 500)
-        for code in [200, 400, 500]:
+        for code in DEFAULT_STATUS_CODES:
             response = interaction.responses.get(code) or Response(status_code=code)
             interaction.responses.setdefault(code, response)
             self._add_response_editor(code, response)
 
         # Select 200 by default
-        self.status_buttons[200].setChecked(True)
-        self._on_status_selected(200)
+        self.status_buttons[DEFAULT_STATUS_CODES[0]].setChecked(True)
+        self._on_status_selected(DEFAULT_STATUS_CODES[0])
 
     def _add_response_editor(self, status_code: int, response: Response) -> None:
         """Add a response editor for a status code."""

@@ -15,6 +15,8 @@ from ..models.interaction import Interaction
 from ..repository import InteractionRepository
 from .widgets.interaction_list_item import InteractionListItem
 
+DESCRIPTION_PREVIEW_LENGTH = 50
+
 
 class NavigationPanel(QFrame):
     """Left panel displaying list of interactions with add button."""
@@ -26,7 +28,7 @@ class NavigationPanel(QFrame):
     ) -> None:
         super().__init__(parent)
         self.repository = repository
-        self._item_widgets: dict[str, InteractionListItem] = {}
+        self._item_widgets: dict[int, InteractionListItem] = {}
         self._setup_ui()
         self._connect_signals()
         self.refresh_list()
@@ -98,14 +100,14 @@ class NavigationPanel(QFrame):
             # Create custom item widget
             item_widget = InteractionListItem(
                 interaction.name or "Untitled Interaction",
-                interaction.description[:50] + "..."
-                if len(interaction.description) > 50
+                interaction.description[:DESCRIPTION_PREVIEW_LENGTH] + "..."
+                if len(interaction.description) > DESCRIPTION_PREVIEW_LENGTH
                 else interaction.description or "No description",
             )
 
             # Connect delete button
             item_widget.delete_btn.clicked.connect(
-                lambda checked, i=interaction: self._on_delete_interaction(i)
+                lambda _, i=interaction: self._on_delete_interaction(i)
             )
 
             # Create QListWidgetItem container
@@ -115,7 +117,7 @@ class NavigationPanel(QFrame):
             self.interaction_list.setItemWidget(item, item_widget)
 
             # Track widget for updates
-            self._item_widgets[interaction.id] = item_widget
+            self._item_widgets[id(interaction)] = item_widget
 
             # Highlight current interaction
             if interaction == self.repository.current_interaction:
