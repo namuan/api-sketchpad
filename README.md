@@ -2,7 +2,7 @@
 
 API SketchPad is a desktop application (PyQt6) for interactively testing, documenting, and simulating RESTful APIs.
 
-This repository contains the initial project skeleton, developer tools, and configuration for building the app.
+![](assets/intro.png)
 
 ## Project Overview
 
