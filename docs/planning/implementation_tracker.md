@@ -1,0 +1,9 @@
+ - [x] Verify all dependencies — owner: dev, status: done, priority: 1
+ - [x] Create OpenAPIImportService to parse/validate spec — owner: dev, status: done, priority: 2
+ - [x] Map paths/operations to Interaction models — owner: dev, status: done, priority: 3
+ - [x] Handle request bodies, headers, query params — owner: dev, status: done, priority: 4
+ - [x] Convert responses to Response objects by status code — owner: dev, status: done, priority: 5
+ - [x] Add "File" -> "Import OpenAPI..." menu action and wire to service — owner: dev, status: done, priority: 6
+- [x] Run import in background to keep UI responsive — owner: dev, status: done, priority: 7
+- [x] Lint and format; fix violations — owner: dev, status: done, priority: 10
+ - [x] Add unit tests for OpenAPI import service — owner: dev, status: done, priority: 8

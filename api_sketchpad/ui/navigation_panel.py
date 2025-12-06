@@ -121,9 +121,7 @@ class NavigationPanel(QFrame):
         self.interaction_list.setSelectionMode(
             QAbstractItemView.SelectionMode.SingleSelection
         )
-        layout.addWidget(self.interaction_list)
-
-        layout.addStretch()
+        layout.addWidget(self.interaction_list, 1)
 
     def _connect_signals(self) -> None:
         """Connect signals to slots."""

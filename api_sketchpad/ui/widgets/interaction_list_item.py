@@ -38,9 +38,9 @@ class InteractionListItem(QFrame):
         # Top Row: Title + Delete Button
         top_row = QHBoxLayout()
         self.title_label = QLabel(title)
-        self.title_label.setStyleSheet(
-            "font-weight: bold; font-size: 14px; border: none;"
-        )
+        self.title_label.setStyleSheet("font-weight: bold; font-size: 14px;")
+        self.title_label.setMinimumHeight(24)
+        self.title_label.setContentsMargins(0, 2, 0, 2)
 
         self.delete_btn = RedMinusIcon(size=18)
 

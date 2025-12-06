@@ -19,6 +19,7 @@ from ..models.interaction import Interaction
 from ..repository import InteractionRepository
 from ..services.mock_server import MockServer
 from ..services.serialization import SerializationService
+from .import_integration import ImportIntegration
 from .navigation_panel import NavigationPanel
 from .request_panel import RequestPanel
 from .response_panel import ResponsePanel
@@ -33,6 +34,7 @@ class MainWindow(QMainWindow):
         self.current_file: str | None = None
         self._mock_server: MockServer | None = None
         self._server_port: int | None = None
+        self.import_integration = ImportIntegration(self, self.repository)
         self._setup_ui()
         self._setup_menu()
         self._connect_signals()
@@ -85,6 +87,9 @@ class MainWindow(QMainWindow):
         self.open_action = QAction("&Open...", self)
         self.open_action.setShortcut("Ctrl+O")
 
+        self.import_openapi_action = QAction("Import &OpenAPI...", self)
+        self.import_openapi_action.setShortcut("Ctrl+I")
+
         self.save_action = QAction("&Save", self)
         self.save_action.setShortcut("Ctrl+S")
 
@@ -93,6 +98,7 @@ class MainWindow(QMainWindow):
 
         file_menu.addAction(self.new_action)
         file_menu.addAction(self.open_action)
+        file_menu.addAction(self.import_openapi_action)
         file_menu.addAction(self.save_action)
         file_menu.addAction(self.save_as_action)
         file_menu.addSeparator()
@@ -117,6 +123,7 @@ class MainWindow(QMainWindow):
         # Menu actions
         self.new_action.triggered.connect(self._on_new)
         self.open_action.triggered.connect(self._on_open)
+        self.import_openapi_action.triggered.connect(self._on_import_openapi)
         self.save_action.triggered.connect(self._on_save)
         self.save_as_action.triggered.connect(self._on_save_as)
         self.exit_action.triggered.connect(self.close)
@@ -197,6 +204,10 @@ class MainWindow(QMainWindow):
                 self.status_bar.showMessage(f"Saved: {file_path}", 3000)
             else:
                 QMessageBox.critical(self, "Save Error", error)
+
+    def _on_import_openapi(self) -> None:
+        """Import interactions from an OpenAPI spec file."""
+        self.import_integration.prompt_and_import()
 
     def _on_no_interactions(self) -> None:
         """Clear middle and right panels when no interactions exist."""
