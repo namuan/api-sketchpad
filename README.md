@@ -18,7 +18,7 @@ API SketchPad provides a flexible three-column interface for composing HTTP requ
 
 ## Prerequisites
 
-- Python 3.8+
+- Python 3.12+
 - PyQt6 >= 6.4.0
 
 ## Installation (dev)
@@ -26,22 +26,17 @@ API SketchPad provides a flexible three-column interface for composing HTTP requ
 Install a development environment and tools. This project uses `uv` and `make` in the template, but you can install dependencies with pip as well.
 
 ```bash
-# Option 1: using the provided helper (if uv is configured)
+# using the provided helper (if uv is configured)
 make install
-
-# Option 2: create venv + pip
-python -m venv .venv
-. .venv/bin/activate
-pip install -e .
 ```
 
 ## Run (development)
 
 ```bash
-# runs the top-level module (if implemented)
+# runs the top-level module (preferred)
 make run
-# or
-python -m api_sketchpad.main
+# or run via uv
+uv run python -m api_sketchpad.main
 ```
 
 ## Testing
