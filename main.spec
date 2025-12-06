@@ -1,11 +1,16 @@
 block_cipher = None
 
+from PyInstaller.utils.hooks import collect_data_files
+
+extra_datas = []
+extra_datas += collect_data_files('openapi_spec_validator')
+
 a = Analysis([
              'main.py'
              ],
              pathex=['.'],
              binaries=None,
-             datas=[],
+             datas=extra_datas,
              hiddenimports=['PyQt6', 'PyQt6.QtCore', 'PyQt6.QtGui', 'PyQt6.QtWidgets'],
              hookspath=None,
              runtime_hooks=None,
