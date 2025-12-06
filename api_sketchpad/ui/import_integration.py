@@ -66,7 +66,16 @@ class ImportIntegration:
         for i in interactions:
             self._repository.add_interaction(i)
         if hasattr(self._parent, "navigation_panel"):
+            if self._repository.interactions:
+                first = self._repository.interactions[0]
+                self._repository.set_current_interaction(first)
             self._parent.navigation_panel.refresh_list()
+            if self._repository.interactions:
+                self._parent.navigation_panel.interaction_selected.emit(
+                    self._repository.interactions[0]
+                )
+            else:
+                self._parent.navigation_panel.interactions_empty.emit()
         if hasattr(self._parent, "status_bar"):
             self._parent.status_bar.showMessage("OpenAPI imported", 3000)
 

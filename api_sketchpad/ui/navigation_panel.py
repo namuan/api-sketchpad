@@ -160,9 +160,12 @@ class NavigationPanel(QFrame):
             # Track widget for updates
             self._item_widgets[id(interaction)] = item_widget
 
-            # Highlight current interaction
-            if interaction == self.repository.current_interaction:
+            # Highlight current interaction (identity comparison to avoid value-equality collisions)
+            if interaction is self.repository.current_interaction:
                 self.interaction_list.setCurrentItem(item)
+            item_widget.set_selected(
+                selected=interaction is self.repository.current_interaction
+            )
 
         if not self.repository.interactions:
             # Show empty indicator and slightly highlight the add button
@@ -242,4 +245,8 @@ class NavigationPanel(QFrame):
         if current is not None:
             interaction = current.data(Qt.ItemDataRole.UserRole)
             self.repository.set_current_interaction(interaction)
+            for i in self.repository.interactions:
+                w = self._item_widgets.get(id(i))
+                if w is not None:
+                    w.set_selected(selected=i is interaction)
             self.interaction_selected.emit(interaction)

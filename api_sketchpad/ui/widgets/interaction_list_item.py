@@ -30,6 +30,10 @@ class InteractionListItem(QFrame):
                 border-radius: 4px;
                 background-color: white;
             }
+            #interactionItem[selected="true"] {
+                border: 2px solid #1a73e8;
+                background-color: #e8f0fe;
+            }
         """)
 
         layout = QVBoxLayout(self)
@@ -62,3 +66,11 @@ class InteractionListItem(QFrame):
     def set_description(self, description: str) -> None:
         """Update the description text."""
         self.desc_label.setText(description)
+
+    def set_selected(self, *, selected: bool) -> None:
+        self.setProperty("selected", selected)
+        s = self.style()
+        if s is not None:
+            s.unpolish(self)
+            s.polish(self)
+        self.update()
