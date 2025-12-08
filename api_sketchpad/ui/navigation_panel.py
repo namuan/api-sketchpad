@@ -51,45 +51,61 @@ class NavigationPanel(QFrame):
         layout.setContentsMargins(10, 10, 10, 10)
         layout.setSpacing(10)
 
-        # Top controls row: Add Interaction + Start Server
-        top_controls = QHBoxLayout()
+        # Top controls row: Add Interaction + Start Server (visually separated header)
+        controls_frame = QFrame()
+        controls_frame.setObjectName("controlsFrame")
+        controls_frame.setStyleSheet(
+            """
+            #controlsFrame {
+                background-color: #f7f9fc;
+                border: 1px solid #dfe3eb;
+                border-radius: 6px;
+            }
+            """
+        )
+        top_controls = QHBoxLayout(controls_frame)
+        top_controls.setContentsMargins(8, 8, 8, 8)
         top_controls.setSpacing(10)
 
         self.add_button = QPushButton("+ Add interaction")
         self.add_button.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.add_button.setStyleSheet("""
+        self.add_button.setStyleSheet(
+            """
             QPushButton {
-                border: 1px solid #333;
-                border-radius: 4px;
-                padding: 6px 10px;
-                background-color: white;
-                text-align: left;
+                background-color: #1a73e8;
+                color: white;
+                border: 1px solid #1a73e8;
+                border-radius: 6px;
+                padding: 6px 12px;
                 font-weight: bold;
             }
             QPushButton:hover {
-                background-color: #f0f0f0;
+                background-color: #1669c1;
             }
-        """)
+            """
+        )
         top_controls.addWidget(self.add_button)
 
         self.server_button = QPushButton("Start Server")
         self.server_button.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.server_button.setStyleSheet("""
+        self.server_button.setStyleSheet(
+            """
             QPushButton {
-                border: 1px solid #333;
-                border-radius: 4px;
-                padding: 6px 10px;
-                background-color: white;
-                text-align: left;
+                background-color: transparent;
+                color: #1a73e8;
+                border: 1px solid #1a73e8;
+                border-radius: 6px;
+                padding: 6px 12px;
                 font-weight: bold;
             }
             QPushButton:hover {
-                background-color: #f0f0f0;
+                background-color: #e8f0fe;
             }
-        """)
+            """
+        )
         top_controls.addWidget(self.server_button)
 
-        layout.addLayout(top_controls)
+        layout.addWidget(controls_frame)
 
         # Empty state hint shown when there are no interactions
         self.empty_state_label = QLabel(
@@ -175,15 +191,15 @@ class NavigationPanel(QFrame):
             self.add_button.setStyleSheet(
                 """
                 QPushButton {
-                    border: 1px solid #1a73e8;
-                    border-radius: 4px;
-                    padding: 6px;
-                    background-color: #e8f0fe;
-                    text-align: left;
+                    background-color: #1a73e8;
+                    color: white;
+                    border: 2px solid #1a73e8;
+                    border-radius: 6px;
+                    padding: 6px 12px;
                     font-weight: bold;
                 }
                 QPushButton:hover {
-                    background-color: #d2e3fc;
+                    background-color: #1669c1;
                 }
                 """
             )
@@ -194,15 +210,15 @@ class NavigationPanel(QFrame):
             self.add_button.setStyleSheet(
                 """
                 QPushButton {
-                    border: 1px solid #333;
-                    border-radius: 4px;
-                    padding: 6px;
-                    background-color: white;
-                    text-align: left;
+                    background-color: #1a73e8;
+                    color: white;
+                    border: 1px solid #1a73e8;
+                    border-radius: 6px;
+                    padding: 6px 12px;
                     font-weight: bold;
                 }
                 QPushButton:hover {
-                    background-color: #f0f0f0;
+                    background-color: #1669c1;
                 }
                 """
             )
