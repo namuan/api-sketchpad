@@ -289,3 +289,6 @@ class RequestPanel(QFrame):
         self.description_field.blockSignals(block)
         self.method_dropdown.blockSignals(block)
         self.path_field.blockSignals(block)
+        self.headers_table.blockSignals(block)
+        self.query_params_widget.blockSignals(block)
+        self.body_editor.blockSignals(block)

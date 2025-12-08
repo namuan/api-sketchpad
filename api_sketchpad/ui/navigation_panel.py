@@ -134,6 +134,8 @@ class NavigationPanel(QFrame):
         self._is_refreshing = True
         block = True
         self.interaction_list.blockSignals(block)
+        sb = self.interaction_list.verticalScrollBar()
+        prev_scroll = sb.value() if sb is not None else 0
         self.interaction_list.clear()
         self._item_widgets.clear()
 
@@ -207,6 +209,8 @@ class NavigationPanel(QFrame):
         unblock = False
         self.interaction_list.blockSignals(unblock)
         self._is_refreshing = False
+        if sb is not None:
+            sb.setValue(prev_scroll)
 
     def update_server_status(self, port: int | None) -> None:
         """Update server button text to reflect server running state."""
